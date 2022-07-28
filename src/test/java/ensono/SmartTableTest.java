@@ -2,7 +2,6 @@ package ensono;
 
 import com.microsoft.playwright.*;
 import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.*;
 
 import java.util.Arrays;
@@ -16,7 +15,7 @@ public class SmartTableTest {
         SCROLL_XY("https://datatables.net/examples/basic_init/scroll_xy.html"),
         INPUT_FORMS("https://datatables.net/examples/api/form.html");
 
-        String url;
+        final String url;
         Tables(String url) {
             this.url = url;
         }
@@ -58,14 +57,17 @@ public class SmartTableTest {
                 .withPreviousPage("a:has-text(\"Previous\")")
                 .withNextPage("a:has-text(\"Next\")")
                 .withPageNumberButtons("span >> a", "class", "current"));
-        switch (table) {
-
-            case ALTERNATIVE_PAGINATION:
-                smartTable.navigate().withFirstPage("a:has-text(\"First\")")
-                        .withLastPage("a:has-text(\"Last\")");
-            default:
-                return this.table = smartTable;
+        if (table == Tables.ALTERNATIVE_PAGINATION) {
+            smartTable.navigate().withFirstPage("a:has-text(\"First\")")
+                    .withLastPage("a:has-text(\"Last\")");
         }
+        return this.table = smartTable;
+    }
+
+    @Test
+    public void testBadHeaderLocator() {
+        page.navigate(Tables.ALTERNATIVE_PAGINATION.url);
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> SmartTable.find(find(page, "id=example"), "th", "tbody >> tr", "td").getRow(0));
     }
 
     @Test

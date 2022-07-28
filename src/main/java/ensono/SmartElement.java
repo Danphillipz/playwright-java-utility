@@ -37,7 +37,7 @@ public class SmartElement implements Locator {
 
     /**
      * Builds a {@link SmartElement} object from an existing {@link Locator}
-     * @param locator Locator to build the SmartElement frokm
+     * @param locator Locator to build the SmartElement from
      * @return {@link SmartElement}
      */
     public static SmartElement fromLocator(Locator locator){
@@ -108,7 +108,7 @@ public class SmartElement implements Locator {
     }
 
     /**
-     * Get the tag name of this element, e.g h1, p, select, input, textarea, div etc
+     * Get the tag name of this element, e.g. h1, p, select, input, textarea, div etc
      * @return tag name
      */
     public String getTagName() {
@@ -242,7 +242,7 @@ public class SmartElement implements Locator {
     }
 
     /**
-     * Inputs the given value into the element depending on it's tag ({@link #getTagName()})
+     * Inputs the given value into the element depending on its tag ({@link #getTagName()})
      * <ol><li>SELECT - Calls {@link #selectOptionByLabel(String)}</li>
      * <li>Default - Call {@link #fill(String)}</li></ol>
      * @param value Value to enter
