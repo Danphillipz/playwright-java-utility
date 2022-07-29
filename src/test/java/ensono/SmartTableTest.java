@@ -36,6 +36,7 @@ public class SmartTableTest {
     public void beforeEachTest() {
         context = browser.newContext();
         page = context.newPage();
+        page.setDefaultNavigationTimeout(100000);
     }
 
     @AfterEach
