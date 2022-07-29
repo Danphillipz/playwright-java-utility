@@ -15,6 +15,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - name: Maven Cache
+      uses: skjolber/maven-cache-github-action@v1.1
     - name: Step 1 - Checkout master branch
       uses: actions/checkout@v3
     - name: Step 2 - Set up JDK 11
@@ -26,8 +28,8 @@ jobs:
     - name: Step 3 - Build with Maven
       run: mvn -B package --file pom.xml
     - name: Step 4 - Inspect directory
-      run: la -a
+      run: ls -a
     - name: Step 5 - Inspect target
       run: |
         cd target
-        la -a
+        ls -a
