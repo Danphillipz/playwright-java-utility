@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 
 /**
  * Custom implementation of the {@link Locator} interface with additional capabilities over the standard playwright implementation
+ * @author dphillips
  */
 public class SmartElement implements Locator {
 
