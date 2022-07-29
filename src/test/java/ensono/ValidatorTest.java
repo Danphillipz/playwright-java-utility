@@ -1,6 +1,6 @@
 package ensono;
 
-import junit.framework.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -17,20 +17,20 @@ public class ValidatorTest {
     public void testValuesArePresentInMapsMissingKeys() {
         String failureReason = Validate.that().valuesArePresentInMaps(List.of(Map.of("keyv1", "v1", "k4", "v4")), actualMaps, Validate.Method.EQUALS)
                 .assertFail().getReason();
-        Assert.assertTrue(failureReason.contains("keyv1=v1") && failureReason.contains("k4=v4"));
+        Assertions.assertTrue(failureReason.contains("keyv1=v1") && failureReason.contains("k4=v4"));
     }
 
     @Test
     public void testValuesArePresentInMapsExtraKey() {
         Map<String, String> map = Map.of("k1", "v1", "k2", "v2", "k3", "v3", "k4", "v4", "key5", "v5");
-        Assert.assertTrue(Validate.that().valuesArePresentInMaps(List.of(map),
+        Assertions.assertTrue(Validate.that().valuesArePresentInMaps(List.of(map),
                 actualMaps, Validate.Method.EQUALS).assertFail().getReason().endsWith("[" + map + "]"));
     }
 
     @Test
     public void testValuesArePresentInMapsUnmatchedValue() {
         Map<String, String> map = Map.of("key1", "v2", "key2", "v2", "key3", "k3noMatch");
-        Assert.assertTrue(Validate.that().valuesArePresentInMaps(List.of(map),
+        Assertions.assertTrue(Validate.that().valuesArePresentInMaps(List.of(map),
                 actualMaps, Validate.Method.EQUALS).assertFail().getReason().endsWith("[" + map + "]"));
     }
 
@@ -51,7 +51,7 @@ public class ValidatorTest {
 
     @Test
     public void testValuesArePresentInListDuplicateValueMissing() {
-        Assert.assertTrue(Validate.that().valuesArePresentInList(
+        Assertions.assertTrue(Validate.that().valuesArePresentInList(
                         Arrays.asList("Val1", "Val2", "Val2", "Val4"),
                         Arrays.asList("Val1", "Val2", "Val3", "Val4"))
                 .assertFail().getReason().endsWith("[Val2]"));

@@ -9,6 +9,7 @@ import com.microsoft.playwright.options.SelectOption;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -70,10 +71,12 @@ public class SmartElement implements Locator {
      * @param requiredValue e.g "selected"
      * @param validationMethod {@link ensono.Validate.Method}
      * @return {@link #nth(int)} {@link SmartElement} which passes the required validation method
+     * @throws NoSuchElementException if no attribute found containing the required value
      */
     public SmartElement withAttribute(String attribute, String requiredValue, Validate.Method validationMethod) {
         return cast(nth(IntStream.range(0, count()).filter(
-                i -> Validate.that().compare(requiredValue, nth(i).getAttribute(attribute), validationMethod).passed()).findFirst().getAsInt()));
+                i -> Validate.that().compare(requiredValue, nth(i).getAttribute(attribute), validationMethod).passed()).findFirst()
+                .orElseThrow(() -> new NoSuchElementException(String.format("Unable to find an element with the value '%s' in the '%s' attribute for this locator", requiredValue, attribute)))));
     }
     public SmartElement waitForLoadState(LoadState state) {
         page().waitForLoadState(state);

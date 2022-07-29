@@ -117,12 +117,12 @@ public class Validate {
         }
 
         public ValidationResult assertPass() {
-            if(failed()) throw new Error(message);
+            if (failed()) throw new AssertionError(message);
             return this;
         }
 
         public ValidationResult assertFail() {
-            if(passed()) throw new Error("Expected a false validation result, however was true");
+            if (passed()) throw new AssertionError("Expected a false validation result, however was true");
             return this;
         }
 
@@ -137,7 +137,6 @@ public class Validate {
         public String getReason() {
             return message;
         }
-
 
     }
 
