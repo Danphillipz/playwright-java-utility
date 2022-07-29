@@ -7,6 +7,13 @@
   <version>1.0-SNAPSHOT</version>
   <name>playwright-java-utility</name>
   <url>http://maven.apache.org</url>
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/Danphillipz/playwright-java-utility</url>
+    </repository>
+  </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>com.microsoft.playwright</groupId>
