@@ -29,12 +29,6 @@ jobs:
         cache: maven
     - name: Step 3 - Build with Maven
       run: mvn -B package --file pom.xml
-    - name: Step 4 - Inspect directory
-      run: ls -a
-    - name: Step 5 - Inspect target
-      run: |
-        cd target
-        ls -a
     - name: Post build - Save Maven cache
       uses: skjolber/maven-cache-github-action@v1
       with:
