@@ -1,10 +1,11 @@
-package ensono;
+package playwright;
 
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.BoundingBox;
 import com.microsoft.playwright.options.FilePayload;
 import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
+import utility.Validate;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -70,7 +71,7 @@ public class SmartElement implements Locator {
      * Gets a SmartElement matching the defined {@link #locator} which contains the required value within the specified attribute
      * @param attribute e.g "class"
      * @param requiredValue e.g "selected"
-     * @param validationMethod {@link ensono.Validate.Method}
+     * @param validationMethod {@link Validate.Method}
      * @return {@link #nth(int)} {@link SmartElement} which passes the required validation method
      * @throws NoSuchElementException if no attribute found containing the required value
      */
@@ -252,12 +253,10 @@ public class SmartElement implements Locator {
      * @param value Value to enter
      */
     public void inputValue(String value){
-        switch(getTagName()){
-            case "SELECT":
-                selectOptionByLabel(value);
-                break;
-            default:
-                fill(value);
+        if ("SELECT".equals(getTagName())) {
+            selectOptionByLabel(value);
+        } else {
+            fill(value);
         }
     }
 

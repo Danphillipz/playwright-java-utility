@@ -1,11 +1,12 @@
-package ensono;
+package playwright;
 
 import com.microsoft.playwright.*;
 import org.junit.jupiter.api.*;
+import utility.Validate;
 
 import java.util.Arrays;
 import java.util.Map;
-import static ensono.SmartElement.find;
+import static playwright.SmartElement.find;
 
 public class SmartTableTest {
 
