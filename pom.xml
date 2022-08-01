@@ -4,7 +4,7 @@
   <groupId>com.ensono</groupId>
   <artifactId>playwright-java-utility</artifactId>
   <packaging>jar</packaging>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <name>playwright-java-utility</name>
   <url>http://maven.apache.org</url>
   <distributionManagement>
