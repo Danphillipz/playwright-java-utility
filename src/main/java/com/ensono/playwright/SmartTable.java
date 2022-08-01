@@ -1,9 +1,9 @@
-package playwright;
+package com.ensono.playwright;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.options.LoadState;
-import utility.Validate;
+import com.ensono.utility.Validate;
 
 import java.util.Arrays;
 import java.util.List;

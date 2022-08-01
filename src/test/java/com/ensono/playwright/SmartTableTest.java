@@ -1,12 +1,11 @@
-package playwright;
+package com.ensono.playwright;
 
 import com.microsoft.playwright.*;
 import org.junit.jupiter.api.*;
-import utility.Validate;
+import com.ensono.utility.Validate;
 
 import java.util.Arrays;
 import java.util.Map;
-import static playwright.SmartElement.find;
 
 public class SmartTableTest {
 
@@ -52,7 +51,7 @@ public class SmartTableTest {
 
     public SmartTable getTable(Tables table){
         page.navigate(table.url);
-        var smartTable = SmartTable.find(find(page, "id=example"), "thead >> th", "tbody >> tr", "td").with(new SmartTable.Navigator(find(page, "id=example_paginate"))
+        var smartTable = SmartTable.find(SmartElement.find(page, "id=example"), "thead >> th", "tbody >> tr", "td").with(new SmartTable.Navigator(SmartElement.find(page, "id=example_paginate"))
                 .withPreviousPage("a:has-text(\"Previous\")")
                 .withNextPage("a:has-text(\"Next\")")
                 .withPageNumberButtons("span >> a", "class", "current"));
@@ -66,7 +65,7 @@ public class SmartTableTest {
     @Test
     public void testBadHeaderLocator() {
         page.navigate(Tables.ALTERNATIVE_PAGINATION.url);
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> SmartTable.find(find(page, "id=example"), "th", "tbody >> tr", "td").getRow(0));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> SmartTable.find(SmartElement.find(page, "id=example"), "th", "tbody >> tr", "td").getRow(0));
     }
 
     @Test
