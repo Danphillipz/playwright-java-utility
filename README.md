@@ -20,17 +20,11 @@ A utility class used to interact with web tables through a common approach
 <h5>Example: Find how old 'Ashton Cox' is</h5>
 <a>Get the table by it's id 'example' and construct a SmartTable by defining how the table headers, rows and cells are located. Then use the find row function with a map of the data you need to find within a row, on the returned row, call the getCellValue function for the 'Age' column</a><br>
 <sub>
-<a>var table = SmartElement.find(page, "id=example");</a><br>
-<a>//SmartTable.find( SmartElement object, header locator, row locator, cell locator)</a><br>
-<a>return SmartTable.find(table, "thead >> th", "tbody >> tr", "td").findRow(Map.of("Name", "Ashton Cox")).getCellValue("Age");</a>
+<a>return SmartElement.find(page, "id=example").asTable("thead >> th", "tbody >> tr", "td").findRow(Map.of("Name", "Ashton Cox")).getCellValue("Age");</a>
 </sub>
 <h5>Example: Get all data from all pages</h5>
 <a>In addition to creating a SmartTable, define a Navigator which defines the locator for the table navigation bar and the locators for it's buttons (i.e next, previous, last, first). Upon calling the extract data function, this will automatically use the navigator to extract data across all pages of the table</a><br>
 <sub>
 <a>var table = SmartElement.find(page, "id=example");</a><br>
-<a>return SmartTable.find(table, "thead >> th", "tbody >> tr", "td")<a><br>
-.with(new SmartTable.Navigator(SmartElement.find(page, "id=example_paginate"))<br>
-                .withPreviousPage("a:has-text(\"Previous\")")<br>
-                .withNextPage("a:has-text(\"Next\")"))<br>
-.extractData();
+<a>return SmartTable.find(table, "thead >> th", "tbody >> tr", "td").with(new SmartTable.Navigator(SmartElement.find(page, "id=example_paginate")).withPreviousPage("a:has-text(\"Previous\")").withNextPage("a:has-text(\"Next\")")).extractData();
 </sub>
