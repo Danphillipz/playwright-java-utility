@@ -4,7 +4,7 @@
   <groupId>com.ensono</groupId>
   <artifactId>playwright-java-utility</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.2b</version>
+  <version>1.0.2c</version>
   <name>playwright-java-utility</name>
   <url>http://maven.apache.org</url>
   <distributionManagement>
@@ -80,15 +80,14 @@
           <version>2.8.2</version>
         </plugin>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>3.2.1</version>
+          <groupId>org.antlr</groupId>
+          <artifactId>antlr4-maven-plugin</artifactId>
+          <version>4.5.3</version>
           <executions>
             <execution>
-              <id>attach-sources</id>
-              <phase>verify</phase>
+              <id>antlr</id>
               <goals>
-                <goal>jar-no-fork</goal>
+                <goal>antlr4</goal>
               </goals>
             </execution>
           </executions>
