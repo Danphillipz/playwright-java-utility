@@ -51,7 +51,7 @@ public class SmartTableTest {
 
     public SmartTable getTable(Tables table){
         page.navigate(table.url);
-        var smartTable = SmartTable.find(SmartElement.find(page, "id=example"), "thead >> th", "tbody >> tr", "td").with(new SmartTable.Navigator(SmartElement.find(page, "id=example_paginate"))
+        var smartTable = SmartElement.find(page, "id=example").asTable("thead >> th", "tbody >> tr", "td").with(new SmartTable.Navigator(SmartElement.find(page, "id=example_paginate"))
                 .withPreviousPage("a:has-text(\"Previous\")")
                 .withNextPage("a:has-text(\"Next\")")
                 .withPageNumberButtons("span >> a", "class", "current"));

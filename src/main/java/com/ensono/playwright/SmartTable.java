@@ -24,17 +24,17 @@ public class SmartTable {
     }
 
     private final SmartElement table;
-    private final String headers, rows, cells;
+    private final String headersLocator, rowLocator, cellLocator;
     private Navigator navigator;
-    private final List<String> columns;
+    private final List<String> headers;
     private final Type type;
 
-    private SmartTable(SmartElement table, String headers, String rows, String cells) {
+    private SmartTable(SmartElement table, String headersLocator, String rowLocator, String cellLocator) {
         this.table = table;
-        this.headers = headers;
-        this.rows = rows;
-        this.cells = cells;
-        columns = table.locator(headers).allTextContents();
+        this.headersLocator = headersLocator;
+        this.rowLocator = rowLocator;
+        this.cellLocator = cellLocator;
+        headers = table.locator(headersLocator).allTextContents();
         //Determine whether the table contains input type elements, influencing how methods interact with the table
         type = table.innerInput().isPresent() ? Type.INPUT_VALUES : Type.STANDARD;
     }
@@ -58,13 +58,13 @@ public class SmartTable {
      * 		</tbody>
      * 	</table>
      * @param table   The main SmartElement object for the entire table, i.e. the root table element (e.g id="example" || "table")
-     * @param headers Locator for finding the headers within the main table element (e.g "thead >> th")
-     * @param rows    Locator for finding all rows within the main table element (e.g "tbody >> tr")
-     * @param cells   Locator for finding each cell within a row (e.g "td")
+     * @param headersLocator Locator for finding the headers within the main table element (e.g "thead >> th")
+     * @param rowLocator    Locator for finding all rows within the main table element (e.g "tbody >> tr")
+     * @param cellLocator   Locator for finding each cell within a row (e.g "td")
      * @return A SmartTable object
      */
-    public static SmartTable find(SmartElement table, String headers, String rows, String cells) {
-        return new SmartTable(table.waitForLoadState(LoadState.NETWORKIDLE), headers, rows, cells);
+    public static SmartTable find(SmartElement table, String headersLocator, String rowLocator, String cellLocator) {
+        return new SmartTable(table.waitForLoadState(LoadState.NETWORKIDLE), headersLocator, rowLocator, cellLocator);
     }
 
     /**
@@ -101,7 +101,7 @@ public class SmartTable {
      * @return {@link SmartTableRow}
      */
     public SmartTableRow findRow(Map<String, String> requiredValues) {
-        Validate.that().valuesArePresentInList(Arrays.asList(requiredValues.keySet().toArray()), columns).assertPass();
+        Validate.that().valuesArePresentInList(Arrays.asList(requiredValues.keySet().toArray()), headers).assertPass();
         if (navigationSet()) navigate().toFirstPageIfSet();
         Optional<SmartTableRow> row = findRowOnPage(requiredValues);
         while (row.isEmpty() && navigationSet() && navigate().toNextPageIfSet()) {
@@ -111,7 +111,7 @@ public class SmartTable {
     }
 
     /**
-     * Finds a row on the current page which contains all the values within the required columns
+     * Finds a row on the current page which contains all the values within the required headers
      * <br><b>Does not</b> cycle all pages to data when searching, only the current page
      *
      * @param requiredValues Data to search for on the current page
@@ -127,22 +127,22 @@ public class SmartTable {
      * @return {@link Locator}
      */
     public Locator rows() {
-        return table.locator(rows);
+        return table.locator(rowLocator);
     }
 
     /**
      * Extracts all data from within the table by calling {@link #extractDataOnPage(String...)} for each page of table data
      * <br>Will only cycle page data if {@link #navigator} has been set through {@link #with(Navigator)}
-     * <br>If no columns are specified, all data will be extracted, otherwise only the specified columns of data will be extracted
+     * <br>If no headers are specified, all data will be extracted, otherwise only the specified headers of data will be extracted
      *
-     * @param columns Columns to extract data from (multiple parameters can be specified), if none, extract all data
+     * @param columnHeaders Headers of the columns to extract data from (multiple parameters can be specified), if none, extract all data
      * @return Builds a list of Maps by calling {@link #extractDataOnPage(String...)} for each page of table data
      */
-    public List<Map<String, String>> extractData(String... columns) {
+    public List<Map<String, String>> extractData(String... columnHeaders) {
         if (navigationSet()) navigate().toFirstPageIfSet();
-        List<Map<String, String>> tableData = extractDataOnPage(columns);
+        List<Map<String, String>> tableData = extractDataOnPage(columnHeaders);
         while (navigationSet() && navigate().toNextPageIfSet()) {
-            tableData.addAll(extractDataOnPage(columns));
+            tableData.addAll(extractDataOnPage(columnHeaders));
         }
         return tableData;
     }
@@ -151,14 +151,14 @@ public class SmartTable {
      * Gets a list of all values within a specific column for each page of table data
      * <br>Will only cycle page data if {@link #navigator} has been set through {@link #with(Navigator)}
      *
-     * @param column Columns to extract data from
+     * @param columnHeader Columns to extract data from
      * @return Builds a list by calling {@link #getListOfValuesOnPage(String)} for each page of table data
      */
-    public List<String> getListOfValues(String column) {
+    public List<String> getListOfValues(String columnHeader) {
         if (navigationSet()) navigate().toFirstPageIfSet();
-        List<String> tableData = getListOfValuesOnPage(column);
+        List<String> tableData = getListOfValuesOnPage(columnHeader);
         while (navigationSet() && navigate().toNextPageIfSet()) {
-            tableData.addAll(getListOfValuesOnPage(column));
+            tableData.addAll(getListOfValuesOnPage(columnHeader));
         }
         return tableData;
     }
@@ -166,24 +166,24 @@ public class SmartTable {
     /**
      * Extracts all data from within the tables current page by building a list of maps for each row.
      * <br>Key = Column header, Value = value extracted from the cell in that column
-     * <br>If no columns are specified, all data will be extracted, otherwise only the specified columns of data will be extracted
+     * <br>If no headers are specified, all data will be extracted, otherwise only the specified headers of data will be extracted
      *
-     * @param columns Columns to extract data from
+     * @param columnHeaders Headers of the columns to extract data from
      * @return Builds a list of Maps by calling {@link SmartTableRow#getValueMap(String...)} on each row
      */
-    public List<Map<String, String>> extractDataOnPage(String... columns) {
-        return getRows().stream().map(row -> row.getValueMap(columns)).collect(Collectors.toList());
+    public List<Map<String, String>> extractDataOnPage(String... columnHeaders) {
+        return getRows().stream().map(row -> row.getValueMap(columnHeaders)).collect(Collectors.toList());
     }
 
     /**
      * Gets a list of all values within the specified column by calling {@link SmartTableRow#getCellValue(String)} on each row
      * <br><b>Does not</b> cycle all pages to data when searching, only the current page
      *
-     * @param column Column to extract data from
+     * @param columnHeader Header of the column to extract data from
      * @return List of all values within the column
      */
-    private List<String> getListOfValuesOnPage(String column) {
-        return getRows().stream().map(row -> row.getCellValue(column)).collect(Collectors.toList());
+    private List<String> getListOfValuesOnPage(String columnHeader) {
+        return getRows().stream().map(row -> row.getCellValue(columnHeader)).collect(Collectors.toList());
     }
 
     /**
@@ -202,7 +202,7 @@ public class SmartTable {
      * @return {@link SmartTableRow}
      */
     public SmartTableRow getRow(int index) {
-        return new SmartTableRow(rows().nth(index), columns, cells);
+        return new SmartTableRow(rows().nth(index));
     }
 
     /**
@@ -211,17 +211,17 @@ public class SmartTable {
      * @return Locator of the column header cells
      */
     public Locator getColumns() {
-        return table.locator(headers);
+        return table.locator(headersLocator);
     }
 
     /**
      * Gets the column cell with the specified header
      *
-     * @param name Name of the column to get
+     * @param header Name of the column to get
      * @return SmartElement for the header cell
      */
-    public SmartElement getColumn(String name) {
-        return getColumn(getRow(0).getColumnIndex(name));
+    public SmartElement getColumn(String header) {
+        return getColumn(getRow(0).getColumnIndex(header));
     }
 
     /**
@@ -237,51 +237,45 @@ public class SmartTable {
     /**
      * An object representation for a row within a web table. Provides utility methods for common interactions
      */
-    public class SmartTableRow {
+    protected class SmartTableRow {
 
         Locator element;
-        String cellLocator;
-        List<String> headers;
 
         /**
          * Creates a new SmartTableRow
          *
-         * @param element     The {@link Locator} for this row
-         * @param headers     List of all column headers (in column order)
-         * @param cellLocator The locator for finding cells within the row (e.g "td")
+         * @param element The {@link Locator} for this row
          */
-        public SmartTableRow(Locator element, List<String> headers, String cellLocator) {
+        public SmartTableRow(Locator element) {
             this.element = element;
-            this.cellLocator = cellLocator;
-            this.headers = headers;
             int cellCount = getCells().count();
             if (cellCount != headers.size()) {
-                throw new IndexOutOfBoundsException(String.format("%d headers identified, but %d columns of data extracted, please verify locators are accurate", headers.size(), cellCount));
+                throw new IndexOutOfBoundsException(String.format("%d headers identified, but %d headers of data extracted, please verify locators are accurate", headers.size(), cellCount));
             }
         }
 
         /**
-         * Gets the index for a given column if it is present within {@link SmartTableRow#headers}
+         * Gets the index for a given column header if it is present within {@link SmartTableRow#headers}
          *
-         * @param column Header of the column to retrieve the index for
+         * @param header Header of the column to retrieve the index for
          * @return index of the column, if present, else throws
          * @throws NullPointerException if no column exists for this table, as specified by {@link SmartTableRow#headers}
          */
-        public int getColumnIndex(String column) {
-            int index = headers.indexOf(column);
+        public int getColumnIndex(String header) {
+            int index = headers.indexOf(header);
             if (index == -1)
-                throw new NullPointerException(String.format("No column with the header '%s' exists", column));
+                throw new NullPointerException(String.format("No column with the header '%s' exists", header));
             return index;
         }
 
         /**
          * Gets the {@link Locator} object for the required column in the row
          *
-         * @param column Header of the column to get a cell object for
+         * @param header Header of the column to get a cell object for
          * @return {@link Locator} object for the required cell
          */
-        public Locator getCell(String column) {
-            return getCells().nth(getColumnIndex(column));
+        public Locator getCell(String header) {
+            return getCells().nth(getColumnIndex(header));
         }
 
         /**
@@ -289,11 +283,11 @@ public class SmartTable {
          * <br>1: {@link Type#STANDARD} By calling {@link #getCell(String)} and {@link Locator#textContent(Locator.TextContentOptions)})
          * <br>2: {@link Type#INPUT_VALUES} By checking to see if the cell is an input cell through {@link SmartElement#innerInput()} otherwise is treated as standard
          *
-         * @param column Header of the column in the row to get the text content
+         * @param header Header of the column in the row to get the text content
          * @return text content of the specified cell in the row
          */
-        public String getCellValue(String column) {
-            SmartElement cell = (SmartElement) getCell(column);
+        public String getCellValue(String header) {
+            SmartElement cell = (SmartElement) getCell(header);
             switch (type) {
                 case STANDARD:
                     return cell.textContent();
@@ -309,26 +303,26 @@ public class SmartTable {
         /**
          * Gets the required cell by calling {@link SmartTableRow#getCell(String)} and then calls {@link Locator#click()} on a child with a href attribute
          *
-         * @param column Header of the column which contains a clickable link (a child element with a href attribute)
+         * @param header Header of the column which contains a clickable link (a child element with a href attribute)
          */
-        public void selectLink(String column) {
-            getCell(column).locator("//*[@href]").click();
+        public void selectLink(String header) {
+            getCell(header).locator("//*[@href]").click();
         }
 
         /**
          * Gets all cell contents by calling {@link SmartTableRow#getValues()} and builds a map where K = Column header / V = Cell contents
-         * <br>Where only specific columns of data are required, {@link #getCellValue(String)} is used instead
+         * <br>Where only specific headers of data are required, {@link #getCellValue(String)} is used instead
          *
-         * @param columns The columns of data to build a map for, if none specified, a map is built for every column of data
+         * @param columnsToExtract The headers of data to build a map for, if none specified, a map is built for every column of data
          * @return Map K = Column header / V = Cell contents
          */
-        public Map<String, String> getValueMap(String... columns) {
-            if (columns.length == 0) {
+        public Map<String, String> getValueMap(String... columnsToExtract) {
+            if (columnsToExtract.length == 0) {
                 var values = getValues();
                 return IntStream.range(0, headers.size()).boxed()
                         .collect(Collectors.toMap(headers::get, values::get));
             }
-            return Arrays.stream(columns).collect(Collectors.toMap(c -> c, this::getCellValue));
+            return Arrays.stream(columnsToExtract).collect(Collectors.toMap(c -> c, this::getCellValue));
         }
 
         /**
@@ -360,24 +354,24 @@ public class SmartTable {
         }
 
         /**
-         * For each key/value (where K = Column / V = Value to enter) this will call {@link #enterData(String, String)}
+         * For each key/value (where K = Column Header/ V = Value to enter) this will call {@link #enterData(String, String)}
          *
          * @param data - Data to enter into the row
          */
         public void enterData(Map<String, String> data) {
-            data.keySet().forEach(column -> enterData(column, data.get(column)));
+            data.keySet().forEach(header -> enterData(header, data.get(header)));
         }
 
 
         /**
          * Enters the value into the required column by getting the input element within the cell ({@link SmartElement#innerInput()} and then calls {@link SmartElement#inputValue(String)}
          *
-         * @param column - Column to enter the value into
-         * @param value  - Value to enter into the columns
+         * @param header - Header of the column to enter the value into
+         * @param value  - Value to enter into the headers
          * @throws PlaywrightException if column is not an editable cell
          */
-        public void enterData(String column, String value) {
-            ((SmartElement) getCell(column)).innerInput().orElseThrow(() -> new PlaywrightException("Element is not an editable element")).inputValue(value);
+        public void enterData(String header, String value) {
+            ((SmartElement) getCell(header)).innerInput().orElseThrow(() -> new PlaywrightException("Element is not an editable element")).inputValue(value);
         }
     }
 
