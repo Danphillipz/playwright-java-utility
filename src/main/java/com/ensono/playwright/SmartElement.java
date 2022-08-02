@@ -47,6 +47,17 @@ public class SmartElement implements Locator {
         return new SmartElement(Optional.ofNullable(locator).orElseThrow(() -> new NullPointerException("Cannot create SmartElement from null locator")));
     }
 
+    /**
+     * Creates a {@link SmartTable} object from this {@link SmartElement}
+     * @param headersLocator Locator for finding the headers within the main table element (e.g "thead >> th")
+     * @param rowLocator    Locator for finding all rows within the main table element (e.g "tbody >> tr")
+     * @param cellLocator   Locator for finding each cell within a row (e.g "td")
+     * @return
+     */
+    public SmartTable asTable(String headersLocator, String rowLocator, String cellLocator){
+        return SmartTable.find(this, headersLocator, rowLocator, cellLocator);
+    }
+
     private SmartElement cast(Locator locator) {
         return (SmartElement) locator;
     }
