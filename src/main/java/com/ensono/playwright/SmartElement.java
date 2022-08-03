@@ -91,6 +91,12 @@ public class SmartElement implements Locator {
                 i -> Validate.that().compare(requiredValue, nth(i).getAttribute(attribute), validationMethod).passed()).findFirst()
                 .orElseThrow(() -> new NoSuchElementException(String.format("Unable to find an element with the value '%s' in the '%s' attribute for this locator", requiredValue, attribute)))));
     }
+
+    /**
+     * Gets the {@link #page()} for the locator and then calls waitForLoadState on the page
+     * @param state {@link LoadState}
+     * @return {@link SmartElement} once the state has been reached
+     */
     public SmartElement waitForLoadState(LoadState state) {
         page().waitForLoadState(state);
         return this;
@@ -129,6 +135,41 @@ public class SmartElement implements Locator {
      */
     public String getTagName() {
         return String.valueOf(evaluate("e => e.tagName"));
+    }
+
+    /**
+     * Check to see if the element, or any of it's parents, are disabled
+     * @return true if disabled
+     */
+    public boolean isParentsOrSelfDisabled() {
+        return isParentsOrSelfDisabled(null);
+    }
+
+    /**
+     * Check to see if the element, or any of it's parents, are disabled
+     * @param isDisabledOptions {@link com.microsoft.playwright.Locator.IsDisabledOptions}
+     * @return true if disabled
+     */
+    public boolean isParentsOrSelfDisabled(IsDisabledOptions isDisabledOptions) {
+        if(isDisabled(isDisabledOptions)) {
+            return true;
+        }
+        SmartElement parent = fromLocator(locator.locator("xpath=.."));
+        return parent.isValid() && parent.isParentsOrSelfDisabled(isDisabledOptions);
+    }
+
+    /**
+     * Inputs the given value into the element depending on its tag ({@link #getTagName()})
+     * <ol><li>SELECT - Calls {@link #selectOptionByLabel(String)}</li>
+     * <li>Default - Call {@link #fill(String)}</li></ol>
+     * @param value Value to enter
+     */
+    public void inputValue(String value){
+        if ("SELECT".equals(getTagName())) {
+            selectOptionByLabel(value);
+        } else {
+            fill(value);
+        }
     }
 
     //All interface methods below
@@ -257,20 +298,6 @@ public class SmartElement implements Locator {
         return locator.inputValue(inputValueOptions);
     }
 
-    /**
-     * Inputs the given value into the element depending on its tag ({@link #getTagName()})
-     * <ol><li>SELECT - Calls {@link #selectOptionByLabel(String)}</li>
-     * <li>Default - Call {@link #fill(String)}</li></ol>
-     * @param value Value to enter
-     */
-    public void inputValue(String value){
-        if ("SELECT".equals(getTagName())) {
-            selectOptionByLabel(value);
-        } else {
-            fill(value);
-        }
-    }
-
     @Override
     public boolean isChecked(IsCheckedOptions isCheckedOptions) {
         return locator.isChecked(isCheckedOptions);
@@ -285,18 +312,6 @@ public class SmartElement implements Locator {
             return true;
         }
         return locator.isDisabled(isDisabledOptions);
-    }
-
-    public boolean isParentsOrSelfDisabled() {
-        return isParentsOrSelfDisabled(null);
-    }
-
-    public boolean isParentsOrSelfDisabled(IsDisabledOptions isDisabledOptions) {
-        if(isDisabled(isDisabledOptions)) {
-            return true;
-        }
-        SmartElement parent = fromLocator(locator.locator("xpath=.."));
-        return parent.isValid() && parent.isParentsOrSelfDisabled(isDisabledOptions);
     }
 
     @Override

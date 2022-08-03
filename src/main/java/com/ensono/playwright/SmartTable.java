@@ -79,6 +79,14 @@ public class SmartTable {
     }
 
     /**
+     * Gets the entire table as it's {@link SmartElement} object
+     * @return {@link SmartElement} - {@link #table}
+     */
+    public SmartElement asSmartElement() {
+        return table;
+    }
+
+    /**
      * Used to navigate the tables pages via the declared {@link #navigator}
      *
      * @return {@link Navigator}

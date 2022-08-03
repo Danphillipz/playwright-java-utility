@@ -2,10 +2,11 @@
 A set of utility classes to make interacting with web applications simpler through playwright-java
 
 <h3>SmartElement</h3>
-A custom implementation of the Playwright Locator with additional capabilities for interacting with web elements
-
+<span>A custom implementation of the Playwright Locator with additional capabilities for interacting with web elements</span>
+<b>Example: Select 'Third Value' </b><select name="choice"><option value="first">First Value</option><option value="second" selected>Second Value</option><option value="third">Third Value</option></select><br>
+<blockquote>SmartElement.find(page, "select").selectOptionByLabel("Third Value");</blockquote>
 <h3>SmartTable</h3>
-A utility class used to interact with web tables through a common approach
+<span>A utility class used to interact with web tables through a common approach</span>
 <table id="example">
   <thead>
     <tr><th>Name</th><th>Position</th><th>Office</th><th>Age</th></tr>
@@ -17,14 +18,19 @@ A utility class used to interact with web tables through a common approach
   </tbody>
 </table>
 
-<h5>Example: Find how old 'Ashton Cox' is</h5>
-<a>Get the table by it's id 'example' and construct a SmartTable by defining how the table headers, rows and cells are located. Then use the find row function with a map of the data you need to find within a row, on the returned row, call the getCellValue function for the 'Age' column</a><br>
-<sub>
-<a>return SmartElement.find(page, "id=example").asTable("thead >> th", "tbody >> tr", "td").findRow(Map.of("Name", "Ashton Cox")).getCellValue("Age");</a>
-</sub>
-<h5>Example: Get all data from all pages</h5>
-<a>In addition to creating a SmartTable, define a Navigator which defines the locator for the table navigation bar and the locators for it's buttons (i.e next, previous, last, first). Upon calling the extract data function, this will automatically use the navigator to extract data across all pages of the table</a><br>
-<sub>
-<a>var table = SmartElement.find(page, "id=example");</a><br>
-<a>return SmartTable.find(table, "thead >> th", "tbody >> tr", "td").with(new SmartTable.Navigator(SmartElement.find(page, "id=example_paginate")).withPreviousPage("a:has-text(\"Previous\")").withNextPage("a:has-text(\"Next\")")).extractData();
-</sub>
+<b>Example: Find how old 'Ashton Cox' is</b><br>
+<span>Get the table by its id 'example' and construct a SmartTable by defining how the table headers, rows and cells are located. Then use the find row function with a map of the data you need to find within a row, on the returned row, call the getCellValue function for the 'Age' column</span><br>
+<blockquote>
+<span>return SmartElement.find(page, "id=example").asTable("thead >> th", "tbody >> tr", "td").findRow(Map.of("Name", "Ashton Cox")).getCellValue("Age");</span>
+</blockquote>
+<b>Example: Get all data from all pages</b><br>
+<span>In addition to creating a SmartTable, define a Navigator which defines the locator for the table navigation bar and the locators for it's buttons (i.e next, previous, last, first). Upon calling the extract data function, this will automatically use the navigator to extract data across all pages of the table</span><br>
+<blockquote>
+<span>var table = SmartElement.find(page, "id=example");</span><br>
+<span>return SmartTable.find(table, "thead >> th", "tbody >> tr", "td").with(new SmartTable.Navigator(SmartElement.find(page, "id=example_paginate")).withPreviousPage("a:has-text(\"Previous\")").withNextPage("a:has-text(\"Next\")")).extractData();</span>
+</blockquote>
+
+<h3>Validate</h3>
+A utility class which allows for various types of validation, with results returned in a ValidationResult
+<br><b>Example: Check if 'A', 'B', 'C' is in alphabetical order</b><br>
+<blockquote>Validate.that().listInAlphabeticalOrder(List.of("A", "B", "C"), true).assertPass();</blockquote>
