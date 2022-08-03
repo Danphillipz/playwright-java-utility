@@ -250,7 +250,7 @@ public class SmartTable {
             this.element = element;
             int cellCount = getCells().count();
             if (cellCount != headers.size()) {
-                throw new IndexOutOfBoundsException(String.format("%d headers identified, but %d headers of data extracted, please verify locators are accurate", headers.size(), cellCount));
+                throw new IndexOutOfBoundsException(String.format("%d headers identified, but %d cells of data extracted, please verify locators are accurate.%sInner HTML for row where issue found: %s", headers.size(), cellCount, System.lineSeparator(), element.innerHTML()));
             }
         }
 
@@ -511,8 +511,9 @@ public class SmartTable {
          * otherwise attempt to cycle through all previous pages via {@link #toPreviousPage()}
          *
          * @throws NullPointerException if neither the {@link #firstPageLocator} or {@link #previousPageLocator} has been set
+         * @return {@link Navigator}
          */
-        public void toFirstPage() {
+        public Navigator toFirstPage() {
             if (isSet(firstPageLocator)) {
                 firstPageLocator.click();
             } else if (isSet(previousPageLocator)) {
@@ -520,6 +521,7 @@ public class SmartTable {
             } else {
                 throw new NullPointerException("Neither the 'First' or 'Previous' page locators have been set");
             }
+            return this;
         }
 
         /**
@@ -542,8 +544,9 @@ public class SmartTable {
          * otherwise attempt to cycle through all next pages via {@link #toNextPage()}
          *
          * @throws NullPointerException if neither the {@link #lastPageLocator} or {@link #nextPageLocator} has been set
+         * @return {@link Navigator}
          */
-        public void toLastPage() {
+        public Navigator toLastPage() {
             if (isSet(lastPageLocator)) {
                 lastPageLocator.click();
             } else if (isSet(nextPageLocator)) {
@@ -551,6 +554,7 @@ public class SmartTable {
             } else {
                 throw new NullPointerException("Neither the 'Last' or 'Next' page locators have been set");
             }
+            return this;
         }
 
         /**
