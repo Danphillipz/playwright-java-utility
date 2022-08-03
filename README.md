@@ -2,8 +2,8 @@
 A set of utility classes to make interacting with web applications simpler through playwright-java
 
 <h3>SmartElement</h3>
-<span>A custom implementation of the Playwright Locator with additional capabilities for interacting with web elements</span>
-<b>Example: Select 'Third Value' </b><select name="choice"><option value="first">First Value</option><option value="second" selected>Second Value</option><option value="third">Third Value</option></select><br>
+<span>A custom implementation of the Playwright Locator with additional capabilities for interacting with web elements</span><br>
+<b>Example: Select 'Third Value' </b><br>
 <blockquote>SmartElement.find(page, "select").selectOptionByLabel("Third Value");</blockquote>
 <h3>SmartTable</h3>
 <span>A utility class used to interact with web tables through a common approach</span>
