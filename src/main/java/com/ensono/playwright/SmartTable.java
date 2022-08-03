@@ -132,10 +132,10 @@ public class SmartTable {
     /**
      * Returns the locator for all rows within the Table
      *
-     * @return {@link Locator}
+     * @return {@link SmartElement}
      */
-    public Locator rows() {
-        return table.locator(rowLocator);
+    public SmartElement rows() {
+        return (SmartElement) table.locator(rowLocator);
     }
 
     /**
@@ -216,10 +216,10 @@ public class SmartTable {
     /**
      * Gets the locator for the column header cells
      *
-     * @return Locator of the column header cells
+     * @return {@link SmartElement} of the column header cells
      */
-    public Locator getColumns() {
-        return table.locator(headersLocator);
+    public SmartElement getColumns() {
+        return (SmartElement) table.locator(headersLocator);
     }
 
     /**
@@ -277,13 +277,13 @@ public class SmartTable {
         }
 
         /**
-         * Gets the {@link Locator} object for the required column in the row
+         * Gets the {@link SmartElement} object for the required column in the row
          *
          * @param header Header of the column to get a cell object for
-         * @return {@link Locator} object for the required cell
+         * @return {@link SmartElement} object for the required cell
          */
-        public Locator getCell(String header) {
-            return getCells().nth(getColumnIndex(header));
+        public SmartElement getCell(String header) {
+            return (SmartElement) getCells().nth(getColumnIndex(header));
         }
 
         /**
@@ -295,7 +295,7 @@ public class SmartTable {
          * @return text content of the specified cell in the row
          */
         public String getCellValue(String header) {
-            SmartElement cell = (SmartElement) getCell(header);
+            var cell = getCell(header);
             switch (type) {
                 case STANDARD:
                     return cell.textContent();
@@ -355,10 +355,10 @@ public class SmartTable {
         /**
          * Gets the locator for cells within the row
          *
-         * @return {@link Locator}
+         * @return {@link SmartElement}
          */
-        public Locator getCells() {
-            return element.locator(cellLocator);
+        public SmartElement getCells() {
+            return (SmartElement) element.locator(cellLocator);
         }
 
         /**
@@ -379,7 +379,7 @@ public class SmartTable {
          * @throws PlaywrightException if column is not an editable cell
          */
         public void enterData(String header, String value) {
-            ((SmartElement) getCell(header)).innerInput().orElseThrow(() -> new PlaywrightException("Element is not an editable element")).inputValue(value);
+            getCell(header).innerInput().orElseThrow(() -> new PlaywrightException("Element is not an editable element")).inputValue(value);
         }
     }
 
