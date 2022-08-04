@@ -5,10 +5,7 @@ import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.options.LoadState;
 import com.ensono.utility.Validate;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -240,6 +237,40 @@ public class SmartTable {
      */
     public SmartElement getColumn(int index) {
         return (SmartElement) getColumns().nth(index);
+    }
+
+    /**
+     * Checks to see if the table contains the required data
+     * @param expectedData Each map in the list equates to a required row of data, where K = column and V = required value
+     * @param method {@link com.ensono.utility.Validate.Method}
+     * @return {@link com.ensono.utility.Validate.ValidationResult}
+     */
+    public Validate.ValidationResult validateTable(List<Map<String, String>> expectedData, Validate.Method method) {
+        LinkedList<Map<String, String>> remainingData = new LinkedList<>(expectedData);
+        if (navigationSet()) navigate().toFirstPageIfSet();
+        remainingData = validatePage(remainingData, method);
+        while (!remainingData.isEmpty() && navigationSet() && navigate().toNextPageIfSet()) {
+            remainingData = validatePage(remainingData, method);
+        }
+        return remainingData.isEmpty() ? Validate.ValidationResult.pass() : Validate.ValidationResult.fail("Matches not found for the following data: %s", remainingData.toString());
+    }
+
+    /**
+     * Checks to see if the tables current page contains any of the required data
+     * @param required Each map in the list equates to a required row of data, where K = column and V = required value
+     * @param method {@link com.ensono.utility.Validate.Method}
+     * @return List of rows which has not matched any data on the page
+     */
+    private LinkedList<Map<String, String>> validatePage(LinkedList<Map<String, String>> required, Validate.Method method) {
+        rowCheck: for(int i = 0 ; i < rows().count() ; i++){
+            for(int j = required.size()-1 ; j >= 0 ; j--) {
+                if(Validate.that().valuesArePresentInMap(required.get(j), getRow(i).getValueMap(), method)){
+                    required.remove(j);
+                    continue rowCheck;
+                }
+            }
+        }
+        return required;
     }
 
     /**
