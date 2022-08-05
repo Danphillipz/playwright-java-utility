@@ -179,6 +179,16 @@ public class SmartTableTest {
     }
 
     @Test
+    public void testDataNotFound() {
+        List<Map<String, String>> expectedData = List.of(
+                Map.of("Name", "Brielle Williamson", "Position", "Integration Specialist", "Office", "New York", "Age", "61", "Start date", "2012-12-02", "Salary", "$372,000"),
+                Map.of("Name", "Steve Jobs", "Position", "Accountant", "Office", "Tokyo", "Age", "63", "Start date", "2011-07-25", "Salary", "$170,750"));
+        String reason = getTable(Tables.ALTERNATIVE_PAGINATION).validateTable(expectedData, Validate.Method.EQUALS).assertFail().getReason();
+        expectedData.get(1).values().forEach(value -> Validate.that().compare(value, reason, Validate.Method.CONTAINS).assertPass());
+        expectedData.get(0).values().forEach(value -> Validate.that().compare(value, reason, Validate.Method.CONTAINS).assertFail());
+    }
+
+    @Test
     public void testDataValidationThroughContains() {
         List<Map<String, String>> expectedData = List.of(
                 Map.of("Name", "Gavin", "Position", "Developer", "Office", "Edinburgh", "Age", "42"),

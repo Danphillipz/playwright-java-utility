@@ -106,7 +106,7 @@ public class SmartTable {
      * @return {@link SmartTableRow}
      */
     public SmartTableRow findRow(Map<String, String> requiredValues) {
-        Validate.that().valuesArePresentInList(Arrays.asList(requiredValues.keySet().toArray()), headers).assertPass();
+        Validate.that().valuesArePresentInList(List.of(requiredValues.keySet().toArray()), headers).assertPass();
         if (navigationSet()) navigate().toFirstPageIfSet();
         Optional<SmartTableRow> row = findRowOnPage(requiredValues);
         while (row.isEmpty() && navigationSet() && navigate().toNextPageIfSet()) {
@@ -263,8 +263,9 @@ public class SmartTable {
      */
     private LinkedList<Map<String, String>> validatePage(LinkedList<Map<String, String>> required, Validate.Method method) {
         rowCheck: for(int i = 0 ; i < rows().count() ; i++){
+            var rowData = getRow(i).getValueMap();
             for(int j = required.size()-1 ; j >= 0 ; j--) {
-                if(Validate.that().valuesArePresentInMap(required.get(j), getRow(i).getValueMap(), method)){
+                if(Validate.that().valuesArePresentInMap(required.get(j), rowData, method)){
                     required.remove(j);
                     continue rowCheck;
                 }
