@@ -168,6 +168,43 @@ public class SmartTableTest {
                 Map.of("Office", "New York"),
                 Map.of("Office", "Edinburgh")), table.extractData("Office"), Validate.Method.EQUALS).assertPass();
     }
+
+    @Test
+    public void testEfficientDataValidation() {
+        List<Map<String, String>> expectedData = List.of(
+                Map.of("Name", "Brielle Williamson", "Position", "Integration Specialist", "Office", "New York", "Age", "61", "Start date", "2012-12-02", "Salary", "$372,000"),
+                Map.of("Name", "Garrett Winters", "Position", "Accountant", "Office", "Tokyo", "Age", "63", "Start date", "2011-07-25", "Salary", "$170,750"));
+        getTable(Tables.ALTERNATIVE_PAGINATION).validateTable(expectedData, Validate.Method.EQUALS).assertPass();
+        Assertions.assertEquals(2, table.navigate().getCurrentPageNumber());
+    }
+
+    @Test
+    public void testDataNotFound() {
+        List<Map<String, String>> expectedData = List.of(
+                Map.of("Name", "Brielle Williamson", "Position", "Integration Specialist", "Office", "New York", "Age", "61", "Start date", "2012-12-02", "Salary", "$372,000"),
+                Map.of("Name", "Steve Jobs", "Position", "Accountant", "Office", "Tokyo", "Age", "63", "Start date", "2011-07-25", "Salary", "$170,750"));
+        String reason = getTable(Tables.ALTERNATIVE_PAGINATION).validateTable(expectedData, Validate.Method.EQUALS).assertFail().getReason();
+        expectedData.get(1).values().forEach(value -> Validate.that().compare(value, reason, Validate.Method.CONTAINS).assertPass());
+        expectedData.get(0).values().forEach(value -> Validate.that().compare(value, reason, Validate.Method.CONTAINS).assertFail());
+    }
+
+    @Test
+    public void testDataValidationThroughContains() {
+        List<Map<String, String>> expectedData = List.of(
+                Map.of("Name", "Gavin", "Position", "Developer", "Office", "Edinburgh", "Age", "42"),
+                Map.of("Name", "Gavin", "Position", "Leader", "Office", "San Francisco", "Age", "22"));
+        getTable(Tables.ALTERNATIVE_PAGINATION).validateTable(expectedData, Validate.Method.EQUALS).assertFail();
+        table.validateTable(expectedData, Validate.Method.CONTAINS).assertPass();
+    }
+
+    @Test
+    public void testDataValidationThroughCaseInsensitive() {
+        List<Map<String, String>> expectedData = List.of(
+                Map.of("Name", "brielle williamson", "Position", "integration specialist", "Office", "new york"));
+        getTable(Tables.ALTERNATIVE_PAGINATION).validateTable(expectedData, Validate.Method.EQUALS).assertFail();
+        table.validateTable(expectedData, Validate.Method.EQUALS_CASE_INSENSITIVE).assertPass();
+    }
+
     @Test
     public void testDataEntry() {
         getTable(Tables.INPUT_FORMS).navigate().withFirstPage(null).withLastPage(null);
