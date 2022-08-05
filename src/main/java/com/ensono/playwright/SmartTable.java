@@ -54,10 +54,11 @@ public class SmartTable {
      * 			</tr>
      * 		</tbody>
      * 	</table>
-     * @param table   The main SmartElement object for the entire table, i.e. the root table element (e.g id="example" || "table")
+     *
+     * @param table          The main SmartElement object for the entire table, i.e. the root table element (e.g id="example" || "table")
      * @param headersLocator Locator for finding the headers within the main table element (e.g "thead >> th")
-     * @param rowLocator    Locator for finding all rows within the main table element (e.g "tbody >> tr")
-     * @param cellLocator   Locator for finding each cell within a row (e.g "td")
+     * @param rowLocator     Locator for finding all rows within the main table element (e.g "tbody >> tr")
+     * @param cellLocator    Locator for finding each cell within a row (e.g "td")
      * @return A SmartTable object
      */
     public static SmartTable find(SmartElement table, String headersLocator, String rowLocator, String cellLocator) {
@@ -77,6 +78,7 @@ public class SmartTable {
 
     /**
      * Gets the entire table as it's {@link SmartElement} object
+     *
      * @return {@link SmartElement} - {@link #table}
      */
     public SmartElement asSmartElement() {
@@ -182,7 +184,7 @@ public class SmartTable {
 
     /**
      * Gets a list of all values within the specified column by calling {@link SmartTableRow#getCellValue(String)} on each row
-     * <br><b>Does not</b> cycle all pages to data when searching, only the current page
+     * <br><b>Does not</b> cycle all pages of data when searching, only the current page
      *
      * @param columnHeader Header of the column to extract data from
      * @return List of all values within the column
@@ -226,7 +228,7 @@ public class SmartTable {
      * @return SmartElement for the header cell
      */
     public SmartElement getColumn(String header) {
-        return getColumn(getRow(0).getColumnIndex(header));
+        return getColumn(getColumnIndex(header));
     }
 
     /**
@@ -241,8 +243,9 @@ public class SmartTable {
 
     /**
      * Checks to see if the table contains the required data
+     *
      * @param expectedData Each map in the list equates to a required row of data, where K = column and V = required value
-     * @param method {@link com.ensono.utility.Validate.Method}
+     * @param method       {@link com.ensono.utility.Validate.Method}
      * @return {@link com.ensono.utility.Validate.ValidationResult}
      */
     public Validate.ValidationResult validateTable(List<Map<String, String>> expectedData, Validate.Method method) {
@@ -257,21 +260,37 @@ public class SmartTable {
 
     /**
      * Checks to see if the tables current page contains any of the required data
+     *
      * @param required Each map in the list equates to a required row of data, where K = column and V = required value
-     * @param method {@link com.ensono.utility.Validate.Method}
+     * @param method   {@link com.ensono.utility.Validate.Method}
      * @return List of rows which has not matched any data on the page
      */
     private LinkedList<Map<String, String>> validatePage(LinkedList<Map<String, String>> required, Validate.Method method) {
-        rowCheck: for(int i = 0 ; i < rows().count() ; i++){
+        rowCheck:
+        for (int i = 0; i < rows().count(); i++) {
             var rowData = getRow(i).getValueMap();
-            for(int j = required.size()-1 ; j >= 0 ; j--) {
-                if(Validate.that().valuesArePresentInMap(required.get(j), rowData, method)){
+            for (int j = required.size() - 1; j >= 0; j--) {
+                if (Validate.that().valuesArePresentInMap(required.get(j), rowData, method)) {
                     required.remove(j);
                     continue rowCheck;
                 }
             }
         }
         return required;
+    }
+
+    /**
+     * Gets the index for a given column header if it is present within {@link #headers}
+     *
+     * @param header Header of the column to retrieve the index for
+     * @return index of the column, if present, else throws
+     * @throws NullPointerException if no column exists for this table, as specified by {@link #headers}
+     */
+    public int getColumnIndex(String header) {
+        int index = headers.indexOf(header);
+        if (index == -1)
+            throw new NullPointerException(String.format("No column with the header '%s' exists", header));
+        return index;
     }
 
     /**
@@ -292,20 +311,6 @@ public class SmartTable {
             if (cellCount != headers.size()) {
                 throw new IndexOutOfBoundsException(String.format("%d headers identified, but %d cells of data extracted, please verify locators are accurate.%sInner HTML for row where issue found: %s", headers.size(), cellCount, System.lineSeparator(), element.innerHTML()));
             }
-        }
-
-        /**
-         * Gets the index for a given column header if it is present within {@link SmartTableRow#headers}
-         *
-         * @param header Header of the column to retrieve the index for
-         * @return index of the column, if present, else throws
-         * @throws NullPointerException if no column exists for this table, as specified by {@link SmartTableRow#headers}
-         */
-        public int getColumnIndex(String header) {
-            int index = headers.indexOf(header);
-            if (index == -1)
-                throw new NullPointerException(String.format("No column with the header '%s' exists", header));
-            return index;
         }
 
         /**
@@ -550,8 +555,8 @@ public class SmartTable {
          * <br>If {@link #firstPageLocator} has been set through {@link #withFirstPage(String)} this element will be clicked
          * otherwise attempt to cycle through all previous pages via {@link #toPreviousPage()}
          *
-         * @throws NullPointerException if neither the {@link #firstPageLocator} or {@link #previousPageLocator} has been set
          * @return {@link Navigator}
+         * @throws NullPointerException if neither the {@link #firstPageLocator} or {@link #previousPageLocator} has been set
          */
         public Navigator toFirstPage() {
             if (isSet(firstPageLocator)) {
@@ -583,8 +588,8 @@ public class SmartTable {
          * <br>If {@link #lastPageLocator} has been set through {@link #withLastPage(String)} this element will be clicked
          * otherwise attempt to cycle through all next pages via {@link #toNextPage()}
          *
-         * @throws NullPointerException if neither the {@link #lastPageLocator} or {@link #nextPageLocator} has been set
          * @return {@link Navigator}
+         * @throws NullPointerException if neither the {@link #lastPageLocator} or {@link #nextPageLocator} has been set
          */
         public Navigator toLastPage() {
             if (isSet(lastPageLocator)) {
