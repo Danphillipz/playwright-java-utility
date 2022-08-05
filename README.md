@@ -37,7 +37,7 @@ A set of utility classes to make interacting with web applications simpler throu
 <span>List&#60;Map&#60;String, String>> expectedData = List.of(
                 Map.of("Name", "Angelica Ramos", "Position", "Chief Executive Officer (CEO)", "Office", "London", "Age", "47"),
                 Map.of("Name", "Airi Satou", "Position", "Accountant", "Office", "Tokyo", "Age", "33"));</span><br>
-        table.validateTable(expectedData, Validate.Method.EQUALS).assertTrue();</span>
+        table.validateTable(expectedData, Validate.Method.EQUALS).assertPass();</span>
 </blockquote>
 <h3>Validate</h3>
 A utility class which allows for various types of validation, with results returned in a ValidationResult
