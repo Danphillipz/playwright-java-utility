@@ -16,16 +16,18 @@ public class ValidatorTest {
 
     @Test
     public void testValuesArePresentInMapsMissingKeys() {
-        String failureReason = Validate.that().valuesArePresentInMaps(List.of(Map.of("keyv1", "v1", "k4", "v4")), actualMaps, Validate.Method.EQUALS)
+        String failureReason = Validate.that()
+                .valuesArePresentInMaps(List.of(Map.of("keyv1", "v1", "k4", "v4")), actualMaps, Validate.Method.EQUALS)
                 .assertFail().getReason();
-        Assertions.assertTrue(failureReason.contains("keyv1=v1") && failureReason.contains("k4=v4"));
-    }
-
-    @Test
-    public void testValuesArePresentInMapsExtraKey() {
-        Map<String, String> map = Map.of("k1", "v1", "k2", "v2", "k3", "v3", "k4", "v4", "key5", "v5");
-        Assertions.assertTrue(Validate.that().valuesArePresentInMaps(List.of(map),
-                actualMaps, Validate.Method.EQUALS).assertFail().getReason().endsWith("[" + map + "]"));
+                Assertions.assertTrue(failureReason.contains("keyv1=v1") && failureReason.contains("k4=v4")); // TODO Make the error message more specific to the failed key/value pair?
+            }
+            
+            @Test
+            public void testValuesArePresentInMapsExtraKey() {
+                Map<String, String> map = Map.of("k1", "v1", "k2", "v2", "k3", "v3", "k4", "v4", "key5", "v5");
+        Assertions.assertTrue(Validate.that().valuesArePresentInMaps(List.of(map),actualMaps, Validate.Method.EQUALS)
+        
+        .assertFail().getReason().endsWith("[" + map + "]"));
     }
 
     @Test
@@ -49,7 +51,6 @@ public class ValidatorTest {
                 actualMaps, Validate.Method.CONTAINS).assertFail();
     }
 
-
     @Test
     public void testValuesArePresentInListDuplicateValueMissing() {
         Assertions.assertTrue(Validate.that().valuesArePresentInList(
@@ -59,16 +60,17 @@ public class ValidatorTest {
     }
 
     @Test
+    // TODO what about exact matches? Or values not in list
     public void testValuesPresentInListMatchingValues() {
         Validate.that().valuesArePresentInList(
-                        Arrays.asList("Val1", "Val2", "Val2", "Val4"),
-                        Arrays.asList("Val1", "Val2", "Val2", "Val4", "Val5"))
+                Arrays.asList("Val1", "Val2", "Val2", "Val4"),
+                Arrays.asList("Val1", "Val2", "Val2", "Val4", "Val5"))
                 .assertPass();
     }
 
     @Test
     public void testListIsAlphabetical() {
-        List<String> data = Arrays.asList("aaa", "aab", "abb", "baa", "bba", "bbb", "c", "d");
+        List<String> data = Arrays.asList("aaa", "aab", "abb", "baa", "bba", "bbb", "c", "Cd", "d");
         Validate.that().listInAlphabeticalOrder(data, true).assertPass();
         Collections.reverse(data);
         Validate.that().listInAlphabeticalOrder(data, true).assertFail();

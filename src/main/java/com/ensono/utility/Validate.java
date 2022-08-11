@@ -143,12 +143,14 @@ public class Validate {
      */
     public ValidationResult listInAlphabeticalOrder(List<String> values, boolean ascending) {
         if (values.size() > 1) {
+            // TODO how to handle different cases? The test seems to fail if using them i.e. mixture of cases
             Iterator<String> iter = values.iterator();
             String current, previous = iter.next();
             while (iter.hasNext()) {
                 current = iter.next();
                 if (ascending ? previous.compareTo(current) > 0 : previous.compareTo(current) == 0) {
                     return ValidationResult.fail("List is not in %s alphabetical order", ascending ? "ascending" : "descending");
+                    // TODO is it worth logging out the value that fails the assertion?
                 }
                 previous = current;
             }
