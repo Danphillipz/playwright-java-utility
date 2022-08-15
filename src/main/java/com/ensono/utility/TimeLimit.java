@@ -12,7 +12,7 @@ import java.time.Instant;
 public class TimeLimit {
 
     private Instant end;
-    private Duration time;
+    private final Duration time;
 
     /**
      * Create a TimeLimit in seconds
@@ -48,19 +48,19 @@ public class TimeLimit {
     }
 
     /**
-     * Checks to see whether the time limit has been reached, if it has been reached, an {@link Error} is thrown
+     * Checks to see whether the time limit has been reached, if it has been reached, an {@link TimeLimitReachedError} is thrown
      * @return true if the limit has been reached
-     * @throws {@link TimeLimitReachedError} if the time limit has been reached
+     * @throws TimeLimitReachedError if the time limit has been reached
      */
     public boolean timeLeftElseThrow() {
-        if(!timeLeft()) throw new TimeLimitReachedError("The specified time limit has been reached");
+        if(!timeLeft()) throw new TimeLimitReachedError("The specified time limit of %d seconds has been reached", time.toSeconds());
         return true;
     }
 
-    public class TimeLimitReachedError extends Error {
+    public static class TimeLimitReachedError extends Error {
 
-        public TimeLimitReachedError(String s) {
-            super(s);
+        public TimeLimitReachedError(String s, Object... format) {
+            super(String.format(s, format));
         }
 
     }

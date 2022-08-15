@@ -690,15 +690,16 @@ public class SmartTable {
          * {@link #toPreviousPage()}
          *
          * @return {@link Navigator}
-         * @throws NullPointerException if neither the {@link #firstPageLocator} or
-         *                              {@link #previousPageLocator} has been set
+         * @throws NullPointerException            if neither the {@link #firstPageLocator} or
+         *                                         {@link #previousPageLocator} has been set
+         * @throws TimeLimit.TimeLimitReachedError if the first page has not been reached by the limit defined {@link #timeoutLimit}
          */
         public Navigator toFirstPage() {
             if (isSet(firstPageLocator)) {
                 firstPageLocator.click();
             } else if (isSet(previousPageLocator)) {
                 TimeLimit limit = new TimeLimit(timeoutLimit);
-                while (toPreviousPage() && limit.timeLeftElseThrow());
+                while (toPreviousPage() && limit.timeLeftElseThrow()) ;
             } else {
                 throw new NullPointerException("Neither the 'First' or 'Previous' page locators have been set");
             }
@@ -728,15 +729,16 @@ public class SmartTable {
          * otherwise attempt to cycle through all next pages via {@link #toNextPage()}
          *
          * @return {@link Navigator}
-         * @throws NullPointerException if neither the {@link #lastPageLocator} or
-         *                              {@link #nextPageLocator} has been set
+         * @throws NullPointerException            if neither the {@link #lastPageLocator} or
+         *                                         {@link #nextPageLocator} has been set
+         * @throws TimeLimit.TimeLimitReachedError if the last page has not been reached by the limit defined {@link #timeoutLimit}
          */
         public Navigator toLastPage() {
             if (isSet(lastPageLocator)) {
                 lastPageLocator.click();
             } else if (isSet(nextPageLocator)) {
                 TimeLimit limit = new TimeLimit(timeoutLimit);
-                while (toNextPage() && limit.timeLeftElseThrow());
+                while (toNextPage() && limit.timeLeftElseThrow()) ;
             } else {
                 throw new NullPointerException("Neither the 'Last' or 'Next' page locators have been set");
             }
@@ -791,7 +793,8 @@ public class SmartTable {
         }
 
         /**
-         * Sets the default timeout limit for this navigator, i.e the amount of time to wait before throwing an exception if navigation is taking too long between pages
+         * Sets the default timeout limit for this navigator, i.e. the amount of time to wait before throwing an exception if navigation is taking too long between pages
+         *
          * @param timeoutLimit The duration of time to wait by default
          */
         public void withTimeoutLimit(Duration timeoutLimit) {
