@@ -1,9 +1,11 @@
 package com.ensono.playwright;
 
+import com.ensono.utility.TimeLimit;
 import com.microsoft.playwright.*;
 import org.junit.jupiter.api.*;
 import com.ensono.utility.Validate;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,7 @@ public class SmartTableTest {
     @BeforeAll
     protected static void launchBrowser() {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch();
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
     }
 
     @BeforeEach
@@ -212,6 +214,17 @@ public class SmartTableTest {
                 newData = Map.of("Age", "22", "Position", "QA Consultant", "Office", "London");
         table.findRow(originalData).enterData(newData);
         table.findRow(newData);
+    }
+
+    @Test
+    public void testNavigationTimeout() {
+        getTable(Tables.INPUT_FORMS);
+        table.navigate().toLastPage();
+        table.navigate().toFirstPage();
+        table.navigate().withTimeoutLimit(Duration.ofMillis(100));
+        Assertions.assertThrows(TimeLimit.TimeLimitReachedError.class, () -> table.navigate().toLastPage());
+        Assertions.assertThrows(TimeLimit.TimeLimitReachedError.class, () -> table.navigate().toFirstPage());
+
     }
 
 }

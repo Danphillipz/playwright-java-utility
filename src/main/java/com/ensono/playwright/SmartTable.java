@@ -1,10 +1,12 @@
 package com.ensono.playwright;
 
+import com.ensono.utility.TimeLimit;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.options.LoadState;
 import com.ensono.utility.Validate;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -155,11 +157,11 @@ public class SmartTable {
      *
      * @param requiredValues Data to search for on the current page
      * @return {@link Optional} - Use {@link Optional#isPresent()} to see if a row
-     *         was found
+     * was found
      */
     public Optional<SmartTableRow> findRowOnPage(Map<String, String> requiredValues) {
         return getRows().stream().filter(
-                row -> Validate.that().valuesArePresentInMap(requiredValues, row.getValueMap(), Validate.Method.EQUALS))
+                        row -> Validate.that().valuesArePresentInMap(requiredValues, row.getValueMap(), Validate.Method.EQUALS))
                 .findFirst();
     }
 
@@ -185,7 +187,7 @@ public class SmartTable {
      * @param columnHeaders Headers of the columns to extract data from (multiple
      *                      parameters can be specified), if none, extract all data
      * @return Builds a list of Maps by calling
-     *         {@link #extractDataOnPage(String...)} for each page of table data
+     * {@link #extractDataOnPage(String...)} for each page of table data
      */
     public List<Map<String, String>> extractData(String... columnHeaders) {
         if (navigationSet())
@@ -206,7 +208,7 @@ public class SmartTable {
      *
      * @param columnHeader Columns to extract data from
      * @return Builds a list by calling {@link #getListOfValuesOnPage(String)} for
-     *         each page of table data
+     * each page of table data
      */
     public List<String> getListOfValues(String columnHeader) {
         if (navigationSet())
@@ -229,7 +231,7 @@ public class SmartTable {
      *
      * @param columnHeaders Headers of the columns to extract data from
      * @return Builds a list of Maps by calling
-     *         {@link SmartTableRow#getValueMap(String...)} on each row
+     * {@link SmartTableRow#getValueMap(String...)} on each row
      */
     public List<Map<String, String>> extractDataOnPage(String... columnHeaders) {
         return getRows().stream().map(row -> row.getValueMap(columnHeaders)).collect(Collectors.toList());
@@ -314,7 +316,7 @@ public class SmartTable {
         }
         return remainingData.isEmpty() ? Validate.ValidationResult.pass()
                 : Validate.ValidationResult.fail("Matches not found for the following data: %s",
-                        remainingData.toString());
+                remainingData.toString());
     }
 
     /**
@@ -326,8 +328,9 @@ public class SmartTable {
      * @return List of rows which has not matched any data on the page
      */
     private LinkedList<Map<String, String>> validatePage(LinkedList<Map<String, String>> required,
-            Validate.Method method) {
-        rowCheck: for (int i = 0; i < rows().count(); i++) {
+                                                         Validate.Method method) {
+        rowCheck:
+        for (int i = 0; i < rows().count(); i++) {
             var rowData = getRow(i).getValueMap();
             for (int j = required.size() - 1; j >= 0; j--) {
                 if (Validate.that().valuesArePresentInMap(required.get(j), rowData, method)) {
@@ -513,6 +516,7 @@ public class SmartTable {
         private SmartElement previousPageLocator, nextPageLocator, firstPageLocator, lastPageLocator,
                 pageNumberButtonsLocator;
         private String currentPageNumberAttribute, currentPageNumberRequiredValue;
+        private Duration timeoutLimit;
 
         /**
          * Create a new table navigation bar, where the {@link SmartElement} should be a
@@ -524,6 +528,7 @@ public class SmartTable {
          */
         public Navigator(SmartElement navigationBarLocator) {
             this.navigationBar = navigationBarLocator;
+            this.timeoutLimit = Duration.ofMinutes(2);
         }
 
         private boolean isSet(Locator locator) {
@@ -608,7 +613,7 @@ public class SmartTable {
          * @return {@link Navigator}
          */
         public Navigator withPageNumberButtons(String pageNumberButtonsLocator, String currentPageNumberAttribute,
-                String currentPageNumberRequiredValue) {
+                                               String currentPageNumberRequiredValue) {
             this.pageNumberButtonsLocator = pageNumberButtonsLocator == null ? null
                     : SmartElement.fromLocator(navigationBar.locator(pageNumberButtonsLocator));
             this.currentPageNumberAttribute = currentPageNumberAttribute;
@@ -620,10 +625,10 @@ public class SmartTable {
          * Navigates to the previous page
          *
          * @return true if navigation was performed
-         *         <br>
-         *         false would be returned if the element is disabled
-         *         {@link SmartElement#isParentsOrSelfDisabled()} indicating navigation
-         *         can no longer be performed
+         * <br>
+         * false would be returned if the element is disabled
+         * {@link SmartElement#isParentsOrSelfDisabled()} indicating navigation
+         * can no longer be performed
          * @throws NullPointerException if {@link #previousPageLocator} has not been set
          */
         public boolean toPreviousPage() {
@@ -650,10 +655,10 @@ public class SmartTable {
          * Navigates to the next page
          *
          * @return true if navigation was performed
-         *         <br>
-         *         false would be returned if the element is disabled
-         *         {@link SmartElement#isParentsOrSelfDisabled()} indicating navigation
-         *         can no longer be performed
+         * <br>
+         * false would be returned if the element is disabled
+         * {@link SmartElement#isParentsOrSelfDisabled()} indicating navigation
+         * can no longer be performed
          * @throws NullPointerException if {@link #nextPageLocator} has not been set
          */
         public boolean toNextPage() {
@@ -692,10 +697,8 @@ public class SmartTable {
             if (isSet(firstPageLocator)) {
                 firstPageLocator.click();
             } else if (isSet(previousPageLocator)) {
-                // TODO Is it worth putting a limit on this in case the previous button keeps
-                // appearing?
-                while (toPreviousPage())
-                    ; // continue looping until first page is reached
+                TimeLimit limit = new TimeLimit(timeoutLimit);
+                while (toPreviousPage() && limit.timeLeftElseThrow());
             } else {
                 throw new NullPointerException("Neither the 'First' or 'Previous' page locators have been set");
             }
@@ -732,9 +735,8 @@ public class SmartTable {
             if (isSet(lastPageLocator)) {
                 lastPageLocator.click();
             } else if (isSet(nextPageLocator)) {
-                // TODO same comment as the previous page. Needs a limit?
-                while (toNextPage())
-                    ; // continue looping until last page is reached
+                TimeLimit limit = new TimeLimit(timeoutLimit);
+                while (toNextPage() && limit.timeLeftElseThrow());
             } else {
                 throw new NullPointerException("Neither the 'Last' or 'Next' page locators have been set");
             }
@@ -786,6 +788,14 @@ public class SmartTable {
                 }
             }
             return this;
+        }
+
+        /**
+         * Sets the default timeout limit for this navigator, i.e the amount of time to wait before throwing an exception if navigation is taking too long between pages
+         * @param timeoutLimit The duration of time to wait by default
+         */
+        public void withTimeoutLimit(Duration timeoutLimit) {
+            this.timeoutLimit = timeoutLimit;
         }
     }
 }

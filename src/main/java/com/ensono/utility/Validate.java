@@ -136,21 +136,19 @@ public class Validate {
     }
 
     /**
-     * Checks that the list is in either ascending or descending alphabetical order
+     * Checks that the list is in either ascending or descending alphabetical order <b>lexicographically</b> via {@link String#compareTo(String)}
      * @param values List to check is in order
      * @param ascending true if ascending ("A", "B", "C"), false if decending ("C", "B", "A")
      * @return {@link ValidationResult}
      */
     public ValidationResult listInAlphabeticalOrder(List<String> values, boolean ascending) {
         if (values.size() > 1) {
-            // TODO how to handle different cases? The test seems to fail if using them i.e. mixture of cases
             Iterator<String> iter = values.iterator();
             String current, previous = iter.next();
             while (iter.hasNext()) {
                 current = iter.next();
                 if (ascending ? previous.compareTo(current) > 0 : previous.compareTo(current) == 0) {
-                    return ValidationResult.fail("List is not in %s alphabetical order", ascending ? "ascending" : "descending");
-                    // TODO is it worth logging out the value that fails the assertion?
+                    return ValidationResult.fail("List is not in %s alphabetical order. Failing elements {%s, %s}", ascending ? "ascending" : "descending", previous, current);
                 }
                 previous = current;
             }
