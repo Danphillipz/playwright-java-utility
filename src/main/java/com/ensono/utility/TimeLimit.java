@@ -19,7 +19,7 @@ public class TimeLimit {
      * @param seconds - Amount of seconds in this limit
      */
     public TimeLimit(int seconds) {
-        time = Duration.ofSeconds(seconds);
+        this.time = Duration.ofSeconds(seconds);
         reset();
     }
 
@@ -28,6 +28,7 @@ public class TimeLimit {
      * @param time {@link Duration} to set as the limit
      */
     public TimeLimit(Duration time) {
+        this.time = time;
         reset();
     }
 
