@@ -28,7 +28,7 @@ public class TimeLimit {
      * @param time {@link Duration} to set as the limit
      */
     public TimeLimit(Duration time) {
-        end = Clock.systemDefaultZone().instant().plus(time);
+        reset();
     }
 
     /**
@@ -40,7 +40,7 @@ public class TimeLimit {
 
     /**
      * Checks to see whether the time limit has been reached
-     * @return true if the limit has been reached
+     * @return true if the limit has not yet been reached
      */
     public boolean timeLeft() {
         return !end.isBefore(Clock.systemDefaultZone().instant());
