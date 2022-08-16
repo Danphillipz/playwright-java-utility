@@ -281,10 +281,8 @@ public class SmartTable {
     public Validate.ValidationResult validateTable(List<Map<String, String>> expectedData, Validate.Method method) {
         LinkedList<Map<String, String>> remainingData = new LinkedList<>(expectedData);
         if (navigationSet()) navigate().toFirstPageIfSet();
-        remainingData = validatePage(remainingData, method);
-        while (!remainingData.isEmpty() && navigationSet() && navigate().toNextPageIfSet()) {
-            remainingData = validatePage(remainingData, method);
-        }
+        do validatePage(remainingData, method);
+        while (!remainingData.isEmpty() && navigationSet() && navigate().toNextPageIfSet());
         return remainingData.isEmpty() ? Validate.ValidationResult.pass() : Validate.ValidationResult.fail("Matches not found for the following data: %s", remainingData.toString());
     }
 
@@ -650,8 +648,7 @@ public class SmartTable {
             if (isSet(firstPageLocator)) {
                 firstPageLocator.click();
             } else if (isSet(previousPageLocator)) {
-                TimeLimit limit = new TimeLimit(timeoutLimit);
-                while (toPreviousPage() && limit.timeLeftElseThrow());
+                TimeLimit.of(timeoutLimit).doWhileTrue(()-> toPreviousPage());
             } else {
                 throw new NullPointerException("Neither the 'First' or 'Previous' page locators have been set");
             }
@@ -689,8 +686,7 @@ public class SmartTable {
             if (isSet(lastPageLocator)) {
                 lastPageLocator.click();
             } else if (isSet(nextPageLocator)) {
-                TimeLimit limit = new TimeLimit(timeoutLimit);
-                while (toNextPage() && limit.timeLeftElseThrow()) ;
+                TimeLimit.of(timeoutLimit).doWhileTrue(()-> toNextPage());
             } else {
                 throw new NullPointerException("Neither the 'Last' or 'Next' page locators have been set");
             }
@@ -744,8 +740,9 @@ public class SmartTable {
          *
          * @param timeoutLimit The duration of time to wait by default
          */
-        public void withTimeoutLimit(Duration timeoutLimit) {
+        public Navigator withTimeoutLimit(Duration timeoutLimit) {
             this.timeoutLimit = timeoutLimit;
+            return this;
         }
     }
 }
