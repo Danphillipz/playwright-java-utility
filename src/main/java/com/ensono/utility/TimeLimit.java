@@ -6,7 +6,6 @@ import java.time.Instant;
 
 /**
  * Utility class used to set time limits and check if a time limit has been reached
- * @author Daniel Phillips
  *
  */
 public class TimeLimit {

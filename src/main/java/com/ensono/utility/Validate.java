@@ -19,7 +19,8 @@ public class Validate {
 
     /**
      * Gets the singleton instance of the validator
-     * @return
+     *
+     * @return {@link Validate}
      */
     public static Validate that() {
         return instance == null ? instance = new Validate() : instance;
@@ -31,11 +32,12 @@ public class Validate {
      * <br>requiredValues =  [{k = "1", v = "1"},{k = "1", v = "1"}]
      * <br>actualValues = [{k = "1", v = "1"}]
      * <br>result = Fail, as only one occurrence of the key value pair was found in the second map
+     *
      * @param requiredValues the list of maps which should be found in the second map
-     * @param actualValues the list of maps to check for matches within
-     * @param method The comparison method when checking two values {@link Method}
+     * @param actualValues   the list of maps to check for matches within
+     * @param method         The comparison method when checking two values {@link Method}
+     * @param <T>            type of input being compared
      * @return {@link ValidationResult}
-     * @param <T> type of input being compared
      */
     public <T> ValidationResult valuesArePresentInMaps(List<Map<T, T>> requiredValues, List<Map<T, T>> actualValues, Method method) {
         requiredValues = new LinkedList<>(requiredValues);
@@ -55,9 +57,10 @@ public class Validate {
 
     /**
      * For each key in the map, applies that to the function and compares the result with the keys corresponding map value
+     *
      * @param expectedValues Map of the expected values
-     * @param function Function to apply to each map key, where the result should be the value to compare the keys corresponding value
-     * @param method The comparison method when checking two values {@link Method}
+     * @param function       Function to apply to each map key, where the result should be the value to compare the keys corresponding value
+     * @param method         The comparison method when checking two values {@link Method}
      * @return {@link ValidationResult}
      */
     public ValidationResult valuesArePresentInMap(Map<String, String> expectedValues, Function<String, String> function, Method method) {
@@ -71,11 +74,12 @@ public class Validate {
 
     /**
      * Checks whether all of the key/values can be found within the second map
+     *
      * @param requiredValues Map of required values
-     * @param actualValues Map of values to check against
-     * @param method The comparison method when checking two values {@link Method}
+     * @param actualValues   Map of values to check against
+     * @param method         The comparison method when checking two values {@link Method}
+     * @param <T>            input type for this method
      * @return true if all keys/values found in the second map
-     * @param <T> input type for this method
      */
     public <T> boolean valuesArePresentInMap(Map<T, T> requiredValues, Map<T, T> actualValues, Method method) {
         for (T key : requiredValues.keySet()) {
@@ -92,8 +96,9 @@ public class Validate {
      * <br>expected =  ["Eg", "Eg", "Eg"]
      * <br>actual = ["Eg", "Eg"]
      * <br>result = Fail, as only 2/3 occurrences of the value "Eg" was found in the second list
+     *
      * @param expected List of values to check for
-     * @param actual List to values to check values are present inside
+     * @param actual   List to values to check values are present inside
      * @return {@link ValidationResult}
      */
     public ValidationResult valuesArePresentInList(List<?> expected, List<?> actual) {
@@ -109,11 +114,12 @@ public class Validate {
 
     /**
      * Compares two inputs using the specified {@link Method}
+     *
      * @param expected Expected Value
-     * @param actual Actual Value
-     * @param method {@link Method}
+     * @param actual   Actual Value
+     * @param method   {@link Method}
+     * @param <T>      input type to this method
      * @return {@link ValidationResult}
-     * @param <T> input type to this method
      */
     public <T> ValidationResult compare(T expected, T actual, Method method) {
         switch (method) {
@@ -137,8 +143,9 @@ public class Validate {
 
     /**
      * Checks that the list is in either ascending or descending alphabetical order <b>lexicographically</b> via {@link String#compareTo(String)}
-     * @param values List to check is in order
-     * @param ascending true if ascending ("A", "B", "C"), false if decending ("C", "B", "A")
+     *
+     * @param values    List to check is in order
+     * @param ascending true if ascending ("A", "B", "C"), false if descending ("C", "B", "A")
      * @return {@link ValidationResult}
      */
     public ValidationResult listInAlphabeticalOrder(List<String> values, boolean ascending) {
@@ -170,6 +177,7 @@ public class Validate {
 
         /**
          * Creates a {@link ValidationResult} object indicating validation was successful
+         *
          * @return {@link ValidationResult}
          */
         public static ValidationResult pass() {
@@ -178,8 +186,9 @@ public class Validate {
 
         /**
          * Creates a {@link ValidationResult} object indicating validation failed
+         *
          * @param message Reason validation failed
-         * @param format Any formatting to perform on the failure message
+         * @param format  Any formatting to perform on the failure message
          * @return {@link ValidationResult}
          */
         public static ValidationResult fail(String message, String... format) {
@@ -188,6 +197,7 @@ public class Validate {
 
         /**
          * Asserts that the result was a pass
+         *
          * @return {@link ValidationResult}
          * @throws AssertionError if validation failed
          */
@@ -195,8 +205,10 @@ public class Validate {
             if (failed()) throw new AssertionError(message);
             return this;
         }
+
         /**
          * Asserts that the result was a fail
+         *
          * @return {@link ValidationResult}
          * @throws AssertionError if validation passed
          */
@@ -207,22 +219,25 @@ public class Validate {
 
         /**
          * Checks if the validation passed
+         *
          * @return true if passed
          */
         public boolean passed() {
-            return status == true;
+            return status;
         }
 
         /**
          * Checks if the validation failed
+         *
          * @return true if failed
          */
         public boolean failed() {
-            return status == false;
+            return !status;
         }
 
         /**
          * Gets the reason for failure
+         *
          * @return String - Reason for failure
          */
         public String getReason() {

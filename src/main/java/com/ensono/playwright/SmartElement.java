@@ -16,22 +16,25 @@ import java.util.stream.IntStream;
 
 /**
  * Custom implementation of the {@link Locator} interface with additional capabilities over the standard playwright implementation
- * @author dphillips
  */
 public class SmartElement implements Locator {
 
     private final Locator locator;
+
     private SmartElement(Page page, String locator) {
         this.locator = page.locator(locator);
     }
 
-    private SmartElement(Locator locator) { this.locator = locator; }
+    private SmartElement(Locator locator) {
+        this.locator = locator;
+    }
 
     /**
      * Find an element on the page and build a {@link SmartElement} object
-     * @param page {@link Page} to find the element on
+     *
+     * @param page    {@link Page} to find the element on
      * @param locator Locator for the element (e.g "//a[text()='%s']")
-     * @param format Formats the locator (e.g "test" = //a[text()='test'])
+     * @param format  Formats the locator (e.g "test" = //a[text()='test'])
      * @return {@link SmartElement}
      */
     public static SmartElement find(Page page, String locator, String... format) {
@@ -40,21 +43,23 @@ public class SmartElement implements Locator {
 
     /**
      * Builds a {@link SmartElement} object from an existing {@link Locator}
+     *
      * @param locator Locator to build the SmartElement from
      * @return {@link SmartElement}
      */
-    public static SmartElement fromLocator(Locator locator){
+    public static SmartElement fromLocator(Locator locator) {
         return new SmartElement(Optional.ofNullable(locator).orElseThrow(() -> new NullPointerException("Cannot create SmartElement from null locator")));
     }
 
     /**
      * Creates a {@link SmartTable} object from this {@link SmartElement}
+     *
      * @param headersLocator Locator for finding the headers within the main table element (e.g "thead >> th")
-     * @param rowLocator    Locator for finding all rows within the main table element (e.g "tbody >> tr")
-     * @param cellLocator   Locator for finding each cell within a row (e.g "td")
+     * @param rowLocator     Locator for finding all rows within the main table element (e.g "tbody >> tr")
+     * @param cellLocator    Locator for finding each cell within a row (e.g "td")
      * @return {@link SmartTable}
      */
-    public SmartTable asTable(String headersLocator, String rowLocator, String cellLocator){
+    public SmartTable asTable(String headersLocator, String rowLocator, String cellLocator) {
         return SmartTable.find(this, headersLocator, rowLocator, cellLocator);
     }
 
@@ -64,6 +69,7 @@ public class SmartElement implements Locator {
 
     /**
      * Check if the locator is valid by querying {@link #count()} > 0 (indicating matches were found)
+     *
      * @return true if 1 or more elements were found matching the locator
      */
     public boolean isValid() {
@@ -80,20 +86,20 @@ public class SmartElement implements Locator {
 
     /**
      * Gets a SmartElement matching the defined {@link #locator} which contains the required value within the specified attribute
-     * @param attribute e.g "class"
-     * @param requiredValue e.g "selected"
+     *
+     * @param attribute        e.g "class"
+     * @param requiredValue    e.g "selected"
      * @param validationMethod {@link Validate.Method}
      * @return {@link #nth(int)} {@link SmartElement} which passes the required validation method
      * @throws NoSuchElementException if no attribute found containing the required value
      */
     public SmartElement withAttribute(String attribute, String requiredValue, Validate.Method validationMethod) {
-        return cast(nth(IntStream.range(0, count()).filter(
-                i -> Validate.that().compare(requiredValue, nth(i).getAttribute(attribute), validationMethod).passed()).findFirst()
-                .orElseThrow(() -> new NoSuchElementException(String.format("Unable to find an element with the value '%s' in the '%s' attribute for this locator", requiredValue, attribute)))));
+        return cast(nth(IntStream.range(0, count()).filter(i -> Validate.that().compare(requiredValue, nth(i).getAttribute(attribute), validationMethod).passed()).findFirst().orElseThrow(() -> new NoSuchElementException(String.format("Unable to find an element with the value '%s' in the '%s' attribute for this locator", requiredValue, attribute)))));
     }
 
     /**
      * Gets the {@link #page()} for the locator and then calls waitForLoadState on the page
+     *
      * @param state {@link LoadState}
      * @return {@link SmartElement} once the state has been reached
      */
@@ -104,25 +110,28 @@ public class SmartElement implements Locator {
 
     /**
      * Check to see whether a child can be found with the specified locator
+     *
      * @param childLocator locator for the child which is passed into {@link #locator(String)}
      * @return result of {@link #isValid()} for the child
      */
-    public boolean hasChild(String childLocator){
+    public boolean hasChild(String childLocator) {
         return cast(locator(childLocator)).isValid();
     }
 
     /**
      * Given a number of possible locators, will check each one until it finds the first locator which returns true when calling {@link #hasChild(String)}
+     *
      * @param locators Array of locators to check for existence of a child element
      * @return {@link Optional} empty if no child found, otherwise can use {@link Optional#get()} to extract the matching child locator
      */
-    public Optional<String> getChild(String...locators){
+    public Optional<String> getChild(String... locators) {
         return Arrays.stream(locators).filter(this::hasChild).findFirst();
     }
 
     /**
      * Checks to see if there is an input element as a child of this SmartElement via {@link #getChild(String...)}
      * <br>Input types checked for<ol><li>input</li><li>textarea</li><li>select</li></ol>
+     *
      * @return {@link Optional} empty if no input element found, otherwise can use {@link Optional#get()} to extract the input element
      */
     public Optional<SmartElement> innerInput() {
@@ -131,6 +140,7 @@ public class SmartElement implements Locator {
 
     /**
      * Get the tag name of this element, e.g. h1, p, select, input, textarea, div etc
+     *
      * @return tag name
      */
     public String getTagName() {
@@ -139,6 +149,7 @@ public class SmartElement implements Locator {
 
     /**
      * Check to see if the element, or any of it's parents, are disabled
+     *
      * @return true if disabled
      */
     public boolean isParentsOrSelfDisabled() {
@@ -147,11 +158,12 @@ public class SmartElement implements Locator {
 
     /**
      * Check to see if the element, or any of it's parents, are disabled
+     *
      * @param isDisabledOptions {@link com.microsoft.playwright.Locator.IsDisabledOptions}
      * @return true if disabled
      */
     public boolean isParentsOrSelfDisabled(IsDisabledOptions isDisabledOptions) {
-        if(isDisabled(isDisabledOptions)) {
+        if (isDisabled(isDisabledOptions)) {
             return true;
         }
         SmartElement parent = fromLocator(locator.locator("xpath=.."));
@@ -162,9 +174,10 @@ public class SmartElement implements Locator {
      * Inputs the given value into the element depending on its tag ({@link #getTagName()})
      * <ol><li>SELECT - Calls {@link #selectOptionByLabel(String)}</li>
      * <li>Default - Call {@link #fill(String)}</li></ol>
+     *
      * @param value Value to enter
      */
-    public void inputValue(String value){
+    public void inputValue(String value) {
         if ("SELECT".equals(getTagName())) {
             selectOptionByLabel(value);
         } else {
@@ -215,7 +228,7 @@ public class SmartElement implements Locator {
 
     @Override
     public void dragTo(Locator locator, DragToOptions dragToOptions) {
-    locator.dragTo(locator, dragToOptions);
+        locator.dragTo(locator, dragToOptions);
     }
 
     @Override
@@ -230,22 +243,22 @@ public class SmartElement implements Locator {
 
     @Override
     public Object evaluate(String s, Object o, EvaluateOptions evaluateOptions) {
-        return locator.evaluate(s,o,evaluateOptions);
+        return locator.evaluate(s, o, evaluateOptions);
     }
 
     @Override
     public Object evaluateAll(String s, Object o) {
-        return locator.evaluateAll(s,o);
+        return locator.evaluateAll(s, o);
     }
 
     @Override
     public JSHandle evaluateHandle(String s, Object o, EvaluateHandleOptions evaluateHandleOptions) {
-        return locator.evaluateHandle(s,o,evaluateHandleOptions);
+        return locator.evaluateHandle(s, o, evaluateHandleOptions);
     }
 
     @Override
     public void fill(String s, FillOptions fillOptions) {
-        locator.fill(s,fillOptions);
+        locator.fill(s, fillOptions);
     }
 
     @Override
@@ -308,7 +321,7 @@ public class SmartElement implements Locator {
         String disabled = getAttribute("disabled");
         if (disabled != null && (disabled.isBlank() || disabled.contains("true"))) {
             return true;
-        }else if ((disabled = getAttribute("class")) != null && (disabled.contains("disabled"))) {
+        } else if ((disabled = getAttribute("class")) != null && (disabled.contains("disabled"))) {
             return true;
         }
         return locator.isDisabled(isDisabledOptions);
@@ -344,7 +357,7 @@ public class SmartElement implements Locator {
         return fromLocator(locator.locator(Optional.ofNullable(s).orElseThrow(() -> new NullPointerException("Cannot locate with null locator")), locatorOptions));
     }
 
-    public Locator locator(String s, String... format){
+    public Locator locator(String s, String... format) {
         return fromLocator(locator.locator(String.format(Optional.ofNullable(s).orElseThrow(() -> new NullPointerException("Cannot locate with null locator")), format)));
     }
 

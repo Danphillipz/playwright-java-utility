@@ -13,8 +13,6 @@ import java.util.stream.IntStream;
 
 /**
  * Utility class used to interact with tables on web pages
- *
- * @author Daniel Phillips
  */
 public class SmartTable {
 
@@ -44,32 +42,12 @@ public class SmartTable {
      * the included table for an example
      * <table id="example">
      * <thead>
-     * <tr>
-     * <th>Name</th>
-     * <th>Position</th>
-     * <th>Office</th>
-     * <th>Age</th>
-     * </tr>
+     *     <tr><th>Name</th><th>Position</th><th>Office</th><th>Age</th></tr>
      * </thead>
      * <tbody>
-     * <tr>
-     * <td>Airi Satou</td>
-     * <td>Accountant</td>
-     * <td>Tokyo</td>
-     * <td>33</td>
-     * </tr>
-     * <tr>
-     * <td>Angelica Ramos</td>
-     * <td>Chief Executive Officer (CEO)</td>
-     * <td>London</td>
-     * <td>47</td>
-     * </tr>
-     * <tr>
-     * <td>Ashton Cox</td>
-     * <td>Junior Technical Author</td>
-     * <td>San Francisco</td>
-     * <td>66</td>
-     * </tr>
+     *     <tr><td>Airi Satou</td><td>Accountant</td><td>Tokyo</td><td>33</td></tr>
+     *     <tr><td>Angelica Ramos</td><td>Chief Executive Officer (CEO)</td><td>London</td><td>47</td></tr>
+     *     <tr><td>Ashton Cox</td><td>Junior Technical Author</td><td>San Francisco</td><td>66</td></tr>
      * </tbody>
      * </table>
      *
@@ -139,14 +117,12 @@ public class SmartTable {
      */
     public SmartTableRow findRow(Map<String, String> requiredValues) {
         Validate.that().valuesArePresentInList(List.of(requiredValues.keySet().toArray()), headers).assertPass();
-        if (navigationSet())
-            navigate().toFirstPageIfSet();
+        if (navigationSet()) navigate().toFirstPageIfSet();
         Optional<SmartTableRow> row = findRowOnPage(requiredValues);
         while (row.isEmpty() && navigationSet() && navigate().toNextPageIfSet()) {
             row = findRowOnPage(requiredValues);
         }
-        return row.orElseThrow(
-                () -> new NullPointerException("No row of data found with the following values: " + requiredValues));
+        return row.orElseThrow(() -> new NullPointerException("No row of data found with the following values: " + requiredValues));
     }
 
     /**
@@ -160,9 +136,7 @@ public class SmartTable {
      * was found
      */
     public Optional<SmartTableRow> findRowOnPage(Map<String, String> requiredValues) {
-        return getRows().stream().filter(
-                        row -> Validate.that().valuesArePresentInMap(requiredValues, row.getValueMap(), Validate.Method.EQUALS))
-                .findFirst();
+        return getRows().stream().filter(row -> Validate.that().valuesArePresentInMap(requiredValues, row.getValueMap(), Validate.Method.EQUALS)).findFirst();
     }
 
     /**
@@ -190,8 +164,7 @@ public class SmartTable {
      * {@link #extractDataOnPage(String...)} for each page of table data
      */
     public List<Map<String, String>> extractData(String... columnHeaders) {
-        if (navigationSet())
-            navigate().toFirstPageIfSet();
+        if (navigationSet()) navigate().toFirstPageIfSet();
         List<Map<String, String>> tableData = extractDataOnPage(columnHeaders);
         while (navigationSet() && navigate().toNextPageIfSet()) {
             tableData.addAll(extractDataOnPage(columnHeaders));
@@ -211,8 +184,7 @@ public class SmartTable {
      * each page of table data
      */
     public List<String> getListOfValues(String columnHeader) {
-        if (navigationSet())
-            navigate().toFirstPageIfSet();
+        if (navigationSet()) navigate().toFirstPageIfSet();
         List<String> tableData = getListOfValuesOnPage(columnHeader);
         while (navigationSet() && navigate().toNextPageIfSet()) {
             tableData.addAll(getListOfValuesOnPage(columnHeader));
@@ -308,15 +280,12 @@ public class SmartTable {
      */
     public Validate.ValidationResult validateTable(List<Map<String, String>> expectedData, Validate.Method method) {
         LinkedList<Map<String, String>> remainingData = new LinkedList<>(expectedData);
-        if (navigationSet())
-            navigate().toFirstPageIfSet();
+        if (navigationSet()) navigate().toFirstPageIfSet();
         remainingData = validatePage(remainingData, method);
         while (!remainingData.isEmpty() && navigationSet() && navigate().toNextPageIfSet()) {
             remainingData = validatePage(remainingData, method);
         }
-        return remainingData.isEmpty() ? Validate.ValidationResult.pass()
-                : Validate.ValidationResult.fail("Matches not found for the following data: %s",
-                remainingData.toString());
+        return remainingData.isEmpty() ? Validate.ValidationResult.pass() : Validate.ValidationResult.fail("Matches not found for the following data: %s", remainingData.toString());
     }
 
     /**
@@ -327,8 +296,7 @@ public class SmartTable {
      * @param method   {@link com.ensono.utility.Validate.Method}
      * @return List of rows which has not matched any data on the page
      */
-    private LinkedList<Map<String, String>> validatePage(LinkedList<Map<String, String>> required,
-                                                         Validate.Method method) {
+    private LinkedList<Map<String, String>> validatePage(LinkedList<Map<String, String>> required, Validate.Method method) {
         rowCheck:
         for (int i = 0; i < rows().count(); i++) {
             var rowData = getRow(i).getValueMap();
@@ -353,8 +321,7 @@ public class SmartTable {
      */
     public int getColumnIndex(String header) {
         int index = headers.indexOf(header);
-        if (index == -1)
-            throw new NullPointerException(String.format("No column with the header '%s' exists", header));
+        if (index == -1) throw new NullPointerException(String.format("No column with the header '%s' exists", header));
         return index;
     }
 
@@ -375,9 +342,7 @@ public class SmartTable {
             this.element = element;
             int cellCount = getCells().count();
             if (cellCount != headers.size()) {
-                throw new IndexOutOfBoundsException(String.format(
-                        "%d headers identified, but %d cells of data extracted, please verify locators are accurate.%sInner HTML for row where issue found: %s",
-                        headers.size(), cellCount, System.lineSeparator(), element.innerHTML()));
+                throw new IndexOutOfBoundsException(String.format("%d headers identified, but %d cells of data extracted, please verify locators are accurate.%sInner HTML for row where issue found: %s", headers.size(), cellCount, System.lineSeparator(), element.innerHTML()));
             }
         }
 
@@ -442,8 +407,7 @@ public class SmartTable {
         public Map<String, String> getValueMap(String... columnsToExtract) {
             if (columnsToExtract.length == 0) {
                 var values = getValues();
-                return IntStream.range(0, headers.size()).boxed()
-                        .collect(Collectors.toMap(headers::get, values::get));
+                return IntStream.range(0, headers.size()).boxed().collect(Collectors.toMap(headers::get, values::get));
             }
             return Arrays.stream(columnsToExtract).collect(Collectors.toMap(c -> c, this::getCellValue));
         }
@@ -501,8 +465,7 @@ public class SmartTable {
          * @throws PlaywrightException if column is not an editable cell
          */
         public void enterData(String header, String value) {
-            getCell(header).innerInput()
-                    .orElseThrow(() -> new PlaywrightException("Element is not an editable element")).inputValue(value);
+            getCell(header).innerInput().orElseThrow(() -> new PlaywrightException("Element is not an editable element")).inputValue(value);
         }
     }
 
@@ -513,8 +476,7 @@ public class SmartTable {
     public static class Navigator {
 
         private final SmartElement navigationBar;
-        private SmartElement previousPageLocator, nextPageLocator, firstPageLocator, lastPageLocator,
-                pageNumberButtonsLocator;
+        private SmartElement previousPageLocator, nextPageLocator, firstPageLocator, lastPageLocator, pageNumberButtonsLocator;
         private String currentPageNumberAttribute, currentPageNumberRequiredValue;
         private Duration timeoutLimit;
 
@@ -545,8 +507,7 @@ public class SmartTable {
          * @return {@link Navigator}
          */
         public Navigator withPreviousPage(String previousPageLocator) {
-            this.previousPageLocator = previousPageLocator == null ? null
-                    : SmartElement.fromLocator(navigationBar.locator(previousPageLocator));
+            this.previousPageLocator = previousPageLocator == null ? null : SmartElement.fromLocator(navigationBar.locator(previousPageLocator));
             return this;
         }
 
@@ -560,8 +521,7 @@ public class SmartTable {
          * @return {@link Navigator}
          */
         public Navigator withNextPage(String nextPageLocator) {
-            this.nextPageLocator = nextPageLocator == null ? null
-                    : SmartElement.fromLocator(navigationBar.locator(nextPageLocator));
+            this.nextPageLocator = nextPageLocator == null ? null : SmartElement.fromLocator(navigationBar.locator(nextPageLocator));
             return this;
         }
 
@@ -575,8 +535,7 @@ public class SmartTable {
          * @return {@link Navigator}
          */
         public Navigator withFirstPage(String firstPageLocator) {
-            this.firstPageLocator = firstPageLocator == null ? null
-                    : SmartElement.fromLocator(navigationBar.locator(firstPageLocator));
+            this.firstPageLocator = firstPageLocator == null ? null : SmartElement.fromLocator(navigationBar.locator(firstPageLocator));
             return this;
         }
 
@@ -590,8 +549,7 @@ public class SmartTable {
          * @return {@link Navigator}
          */
         public Navigator withLastPage(String lastPageLocator) {
-            this.lastPageLocator = lastPageLocator == null ? null
-                    : SmartElement.fromLocator(navigationBar.locator(lastPageLocator));
+            this.lastPageLocator = lastPageLocator == null ? null : SmartElement.fromLocator(navigationBar.locator(lastPageLocator));
             return this;
         }
 
@@ -612,10 +570,8 @@ public class SmartTable {
          *                                       "current"
          * @return {@link Navigator}
          */
-        public Navigator withPageNumberButtons(String pageNumberButtonsLocator, String currentPageNumberAttribute,
-                                               String currentPageNumberRequiredValue) {
-            this.pageNumberButtonsLocator = pageNumberButtonsLocator == null ? null
-                    : SmartElement.fromLocator(navigationBar.locator(pageNumberButtonsLocator));
+        public Navigator withPageNumberButtons(String pageNumberButtonsLocator, String currentPageNumberAttribute, String currentPageNumberRequiredValue) {
+            this.pageNumberButtonsLocator = pageNumberButtonsLocator == null ? null : SmartElement.fromLocator(navigationBar.locator(pageNumberButtonsLocator));
             this.currentPageNumberAttribute = currentPageNumberAttribute;
             this.currentPageNumberRequiredValue = currentPageNumberRequiredValue;
             return this;
@@ -632,9 +588,7 @@ public class SmartTable {
          * @throws NullPointerException if {@link #previousPageLocator} has not been set
          */
         public boolean toPreviousPage() {
-            if (!Optional.ofNullable(previousPageLocator)
-                    .orElseThrow(() -> new NullPointerException("Previous page locator has not been set"))
-                    .isParentsOrSelfDisabled()) {
+            if (!Optional.ofNullable(previousPageLocator).orElseThrow(() -> new NullPointerException("Previous page locator has not been set")).isParentsOrSelfDisabled()) {
                 previousPageLocator.click();
                 return true;
             }
@@ -662,9 +616,7 @@ public class SmartTable {
          * @throws NullPointerException if {@link #nextPageLocator} has not been set
          */
         public boolean toNextPage() {
-            if (!Optional.ofNullable(nextPageLocator)
-                    .orElseThrow(() -> new NullPointerException("Next page locator has not been set"))
-                    .isParentsOrSelfDisabled()) {
+            if (!Optional.ofNullable(nextPageLocator).orElseThrow(() -> new NullPointerException("Next page locator has not been set")).isParentsOrSelfDisabled()) {
                 nextPageLocator.click();
                 return true;
             }
@@ -699,7 +651,7 @@ public class SmartTable {
                 firstPageLocator.click();
             } else if (isSet(previousPageLocator)) {
                 TimeLimit limit = new TimeLimit(timeoutLimit);
-                while (toPreviousPage() && limit.timeLeftElseThrow()) ;
+                while (toPreviousPage() && limit.timeLeftElseThrow());
             } else {
                 throw new NullPointerException("Neither the 'First' or 'Previous' page locators have been set");
             }
@@ -769,11 +721,7 @@ public class SmartTable {
          *                              has not been set
          */
         public int getCurrentPageNumber() {
-            return Integer.parseInt(Optional.ofNullable(pageNumberButtonsLocator)
-                    .orElseThrow(() -> new NullPointerException(
-                            "Current page number can only be retrieved if a locator has been set for page number buttons"))
-                    .withAttribute(currentPageNumberAttribute, currentPageNumberRequiredValue, Validate.Method.CONTAINS)
-                    .textContent());
+            return Integer.parseInt(Optional.ofNullable(pageNumberButtonsLocator).orElseThrow(() -> new NullPointerException("Current page number can only be retrieved if a locator has been set for page number buttons")).withAttribute(currentPageNumberAttribute, currentPageNumberRequiredValue, Validate.Method.CONTAINS).textContent());
         }
 
         /**
@@ -785,8 +733,7 @@ public class SmartTable {
         public Navigator toPage(int page) {
             while (page != getCurrentPageNumber()) {
                 if (page < getCurrentPageNumber() ? !toPreviousPage() : !toNextPage()) {
-                    throw new IndexOutOfBoundsException(String
-                            .format("Required page %d but cannot navigate past page %d", page, getCurrentPageNumber()));
+                    throw new IndexOutOfBoundsException(String.format("Required page %d but cannot navigate past page %d", page, getCurrentPageNumber()));
                 }
             }
             return this;
