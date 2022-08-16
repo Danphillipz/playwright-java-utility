@@ -16,7 +16,8 @@ public class ValidatorTest {
 
     @Test
     public void testValuesArePresentInMapsMissingKeys() {
-        String failureReason = Validate.that().valuesArePresentInMaps(List.of(Map.of("keyv1", "v1", "k4", "v4")), actualMaps, Validate.Method.EQUALS)
+        String failureReason = Validate.that()
+                .valuesArePresentInMaps(List.of(Map.of("keyv1", "v1", "k4", "v4")), actualMaps, Validate.Method.EQUALS)
                 .assertFail().getReason();
         Assertions.assertTrue(failureReason.contains("keyv1=v1") && failureReason.contains("k4=v4"));
     }
@@ -24,8 +25,8 @@ public class ValidatorTest {
     @Test
     public void testValuesArePresentInMapsExtraKey() {
         Map<String, String> map = Map.of("k1", "v1", "k2", "v2", "k3", "v3", "k4", "v4", "key5", "v5");
-        Assertions.assertTrue(Validate.that().valuesArePresentInMaps(List.of(map),
-                actualMaps, Validate.Method.EQUALS).assertFail().getReason().endsWith("[" + map + "]"));
+        String failureMessage = Validate.that().valuesArePresentInMaps(List.of(map), actualMaps, Validate.Method.EQUALS).assertFail().getReason();
+        Assertions.assertTrue(failureMessage.endsWith("[" + map + "]"));
     }
 
     @Test
@@ -49,7 +50,6 @@ public class ValidatorTest {
                 actualMaps, Validate.Method.CONTAINS).assertFail();
     }
 
-
     @Test
     public void testValuesArePresentInListDuplicateValueMissing() {
         Assertions.assertTrue(Validate.that().valuesArePresentInList(
@@ -67,8 +67,8 @@ public class ValidatorTest {
     }
 
     @Test
-    public void testListIsAlphabetical() {
-        List<String> data = Arrays.asList("aaa", "aab", "abb", "baa", "bba", "bbb", "c", "d");
+    public void testListIsLexicographicallyAlphabetical() {
+        List<String> data = Arrays.asList("aAb", "aaa", "aab", "abb", "baa", "bba", "bbb", "c", "cd", "d");
         Validate.that().listInAlphabeticalOrder(data, true).assertPass();
         Collections.reverse(data);
         Validate.that().listInAlphabeticalOrder(data, true).assertFail();
